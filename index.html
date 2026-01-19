@@ -10,9 +10,9 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <div class="nav-brand">
-                <h1>Data Science in Education</h1>
-            </div>
+            <a href="index.html" class="nav-brand">
+                <img src="images/logos/DSE-badge.svg" alt="Data Science in Education">
+            </a>
             <ul class="nav-menu">
                 <li><a href="index.html" class="active">Home</a></li>
                 <li><a href="videos.html">Videos</a></li>
@@ -29,11 +29,9 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h2>Transforming Education Through Data Science</h2>
-                <p>Explore cutting-edge research, practical applications, and innovative approaches to data-driven education</p>
                 <div class="hero-buttons">
-                    <a href="videos.html" class="btn btn-primary">Watch Videos</a>
-                    <a href="events.html" class="btn btn-secondary">Upcoming Events</a>
+                    <a href="events.html" class="btn btn-primary">Upcoming Events</a>
+                    <a href="videos.html" class="btn btn-secondary">Watch Videos</a>
                 </div>
             </div>
         </div>
@@ -100,28 +98,7 @@
         <div class="container">
             <h2>Upcoming Events</h2>
             <div class="events-list">
-                <div class="event-card">
-                    <div class="event-date">
-                        <span class="day">15</span>
-                        <span class="month">Oct</span>
-                    </div>
-                    <div class="event-details">
-                        <h3>Workshop: Python for Educational Data Analysis</h3>
-                        <p class="event-meta">Online • 2:00 PM EST</p>
-                        <p>Hands-on workshop covering pandas, matplotlib, and statistical analysis for education data</p>
-                    </div>
-                </div>
-                <div class="event-card">
-                    <div class="event-date">
-                        <span class="day">22</span>
-                        <span class="month">Oct</span>
-                    </div>
-                    <div class="event-details">
-                        <h3>Webinar: Ethics in Educational Data Science</h3>
-                        <p class="event-meta">Online • 3:00 PM EST</p>
-                        <p>Exploring privacy, bias, and responsible use of student data</p>
-                    </div>
-                </div>
+                <!-- Events will be loaded dynamically from Notion -->
             </div>
             <div class="section-footer">
                 <a href="events.html" class="btn btn-outline">View All Events</a>
@@ -155,6 +132,23 @@
         </div>
     </footer>
 
+    <script src="js/data-loader.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // Load and display events on homepage
+        document.addEventListener('DOMContentLoaded', async function() {
+            const eventsContainer = document.querySelector('.upcoming-events .events-list');
+            if (eventsContainer) {
+                const data = await window.dataLoader.loadEvents();
+                window.dataLoader.renderEvents(eventsContainer, data.upcoming, 2); // Show 2 upcoming events
+            }
+
+            const videosContainer = document.querySelector('.featured-videos .video-grid');
+            if (videosContainer) {
+                const data = await window.dataLoader.loadVideos();
+                window.dataLoader.renderVideos(videosContainer, data.videos, 3); // Show 3 featured videos
+            }
+        });
+    </script>
 </body>
 </html>

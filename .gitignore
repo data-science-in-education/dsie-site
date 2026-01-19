@@ -5,3 +5,5 @@ node_modules/
 data/events.json
 data/videos.json
 .claude
+*.lnk
+ref/

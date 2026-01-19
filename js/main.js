@@ -31,51 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Video Filter Functionality
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const videoCards = document.querySelectorAll('.video-card');
-    const eventCards = document.querySelectorAll('.event-card-detailed');
-
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const filterValue = this.getAttribute('data-filter');
-
-            // Update active button
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-
-            // Filter video cards
-            if (videoCards.length > 0) {
-                videoCards.forEach(card => {
-                    const category = card.getAttribute('data-category');
-
-                    if (filterValue === 'all' || category === filterValue) {
-                        card.style.display = 'block';
-                        // Add fade-in animation
-                        card.style.animation = 'fadeIn 0.5s ease';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }
-
-            // Filter event cards
-            if (eventCards.length > 0) {
-                eventCards.forEach(card => {
-                    const category = card.getAttribute('data-category');
-
-                    if (filterValue === 'all' || category === filterValue) {
-                        card.style.display = 'block';
-                        // Add fade-in animation
-                        card.style.animation = 'fadeIn 0.5s ease';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }
-        });
-    });
-
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
@@ -143,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Video card click handling
+    const videoCards = document.querySelectorAll('.video-card');
     videoCards.forEach(card => {
         card.addEventListener('click', function() {
             // This is where you could add modal functionality or redirect to video page

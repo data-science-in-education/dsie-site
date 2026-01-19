@@ -1,0 +1,21 @@
+{
+  "name": "dsie-website",
+  "version": "1.0.0",
+  "description": "Data Science in Education website with Notion CMS integration",
+  "main": "index.js",
+  "scripts": {
+    "fetch-notion": "node scripts/notion-fetch.js",
+    "sync-meetup": "node scripts/meetup-sync.js",
+    "build-data": "node scripts/notion-fetch.js && echo 'Data updated successfully!'",
+    "serve": "python3 -m http.server 8000",
+    "dev": "npm run build-data && npm run serve"
+  },
+  "keywords": ["data-science", "education", "notion", "meetup"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "dotenv": "^16.4.1",
+    "node-fetch": "^2.7.0"
+  }
+}
