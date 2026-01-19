@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Data Science in Education - Learn, explore, and stay updated with the latest in educational data science">
+    <meta name="description" content="Data Science in Education - A community for educators, researchers, and data enthusiasts exploring data-driven approaches to education">
     <title>Data Science in Education</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -13,16 +13,7 @@
             <a href="index.html" class="nav-brand">
                 <img src="images/logos/DSE-badge.svg" alt="Data Science in Education">
             </a>
-            <ul class="nav-menu">
-                <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="videos.html">Videos</a></li>
-                <li><a href="events.html">Events</a></li>
-            </ul>
-            <button class="hamburger" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+            <a href="https://www.meetup.com/data-science-in-education/" class="btn btn-primary nav-cta" target="_blank" rel="noopener">Join Us on Meetup</a>
         </div>
     </nav>
 
@@ -30,8 +21,7 @@
         <div class="container">
             <div class="hero-content">
                 <div class="hero-buttons">
-                    <a href="events.html" class="btn btn-primary">Upcoming Events</a>
-                    <a href="videos.html" class="btn btn-secondary">Watch Videos</a>
+                    <a href="https://www.meetup.com/data-science-in-education/" class="btn btn-primary" target="_blank" rel="noopener">Join Our Meetup Group</a>
                 </div>
             </div>
         </div>
@@ -40,90 +30,30 @@
     <section class="about">
         <div class="container">
             <h2>Our Mission</h2>
-            <p>We're dedicated to bridging the gap between data science and education. Our platform provides educators, researchers, and students with resources, insights, and community connections to harness the power of data in educational settings.</p>
+            <p>We're dedicated to bridging the gap between data science and education. Our community brings together educators, researchers, and data enthusiasts to share knowledge, explore new approaches, and harness the power of data in educational settings.</p>
         </div>
     </section>
 
-    <section class="featured-videos">
+    <section class="cta-section">
         <div class="container">
-            <h2>Featured Videos</h2>
-            <div class="video-grid">
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <div class="placeholder-video">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h3>Introduction to Learning Analytics</h3>
-                        <p>Discover how data science transforms educational outcomes</p>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <div class="placeholder-video">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h3>Predictive Models in Education</h3>
-                        <p>Using machine learning to support student success</p>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <div class="placeholder-video">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h3>Data Visualization for Educators</h3>
-                        <p>Creating meaningful insights from educational data</p>
-                    </div>
-                </div>
-            </div>
-            <div class="section-footer">
-                <a href="videos.html" class="btn btn-outline">View All Videos</a>
-            </div>
-        </div>
-    </section>
-
-    <section class="upcoming-events">
-        <div class="container">
-            <h2>Upcoming Events</h2>
-            <div class="events-list">
-                <!-- Events will be loaded dynamically from Notion -->
-            </div>
-            <div class="section-footer">
-                <a href="events.html" class="btn btn-outline">View All Events</a>
-            </div>
+            <h2>Join Our Community</h2>
+            <p>Connect with fellow educators and data scientists. Attend workshops, talks, and networking events.</p>
+            <a href="https://www.meetup.com/data-science-in-education/" class="btn btn-primary" target="_blank" rel="noopener">View Upcoming Events</a>
         </div>
     </section>
 
     <footer class="footer">
         <div class="container">
-            <div class="footer-content">
+            <div class="footer-content footer-simple">
                 <div class="footer-section">
                     <h3>Data Science in Education</h3>
                     <p>Empowering educators with data-driven insights</p>
                 </div>
                 <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="videos.html">Videos</a></li>
-                        <li><a href="events.html">Events</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
                     <h4>Connect</h4>
-                    <p>Stay updated with our latest content and events</p>
+                    <ul>
+                        <li><a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noopener">Meetup</a></li>
+                    </ul>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -132,23 +62,6 @@
         </div>
     </footer>
 
-    <script src="js/data-loader.js"></script>
     <script src="js/main.js"></script>
-    <script>
-        // Load and display events on homepage
-        document.addEventListener('DOMContentLoaded', async function() {
-            const eventsContainer = document.querySelector('.upcoming-events .events-list');
-            if (eventsContainer) {
-                const data = await window.dataLoader.loadEvents();
-                window.dataLoader.renderEvents(eventsContainer, data.upcoming, 2); // Show 2 upcoming events
-            }
-
-            const videosContainer = document.querySelector('.featured-videos .video-grid');
-            if (videosContainer) {
-                const data = await window.dataLoader.loadVideos();
-                window.dataLoader.renderVideos(videosContainer, data.videos, 3); // Show 3 featured videos
-            }
-        });
-    </script>
 </body>
 </html>
