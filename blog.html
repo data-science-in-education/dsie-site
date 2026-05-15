@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blog posts on talks and sessions from Data Science in Education meetups">
+    <title>Blog — Data Science in Education</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand">
+                <img src="images/logos/DSE-badge.svg" alt="Data Science in Education">
+            </a>
+            <button class="hamburger" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="events.html">Events</a></li>
+                <li><a href="videos.html">Videos</a></li>
+                <li><a href="blog.html" class="active">Blog</a></li>
+                <li><a href="https://www.meetup.com/data-science-in-education/" class="btn btn-primary nav-cta" target="_blank" rel="noopener">Join Us on Meetup</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Blog</h1>
+            <p>Write-ups and reflections from our talks and sessions</p>
+        </div>
+    </section>
+
+    <section class="blog-section">
+        <div class="container">
+            <div id="blog-grid" class="blog-grid"></div>
+            <p id="blog-empty" class="blog-empty-state" style="display:none;">No blog posts yet — check back soon!</p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noopener">Meetup</a>
+                <a href="https://www.linkedin.com/company/data-science-in-education" target="_blank" rel="noopener">LinkedIn</a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Data Science in Education. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/blog-loader.js"></script>
+</body>
+</html>

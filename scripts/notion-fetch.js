@@ -40,6 +40,26 @@ function getPropertyValue(property) {
 }
 
 /**
+ * Get full rich text content, joining all segments
+ */
+function getRichTextContent(property) {
+  if (!property || property.type !== 'rich_text') return '';
+  return property.rich_text.map(t => t.plain_text).join('');
+}
+
+/**
+ * Convert a string to a URL-friendly slug
+ */
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
+/**
  * Fetch events from Notion
  */
 async function fetchEvents() {
@@ -74,9 +94,12 @@ async function fetchEvents() {
         youtubeId = match ? match[1] : '';
       }
 
+      const title = getPropertyValue(props.Title);
       return {
         id: page.id,
-        title: getPropertyValue(props.Title),
+        slug: slugify(title),
+        title: title,
+        speaker: props.Speaker ? getRichTextContent(props.Speaker) : '',
         description: getPropertyValue(props.Description),
         date: getPropertyValue(props.Date),
         day: eventDate.getDate().toString().padStart(2, '0'),
@@ -92,7 +115,9 @@ async function fetchEvents() {
         youtubeUrl: youtubeUrl,
         youtubeId: youtubeId,
         status: getPropertyValue(props.Status),
-        meetupId: getPropertyValue(props['Meetup ID'])
+        meetupId: getPropertyValue(props['Meetup ID']),
+        blogContent: props['Blog Content'] ? getRichTextContent(props['Blog Content']) : '',
+        blogPublished: props['Blog Published'] ? getPropertyValue(props['Blog Published']) : false
       };
     });
 
@@ -153,6 +178,44 @@ function generateVideosFromEvents(events) {
 }
 
 /**
+ * Generate blog posts data from past events with Blog Published = true
+ */
+function generateBlogPosts(events) {
+  console.log('Generating blog posts from events...');
+
+  const allEvents = [...events.upcoming, ...events.past];
+  const posts = allEvents
+    .filter(event => event.blogPublished)
+    .map(event => ({
+      id: event.id,
+      slug: event.slug,
+      title: event.title,
+      speaker: event.speaker,
+      date: event.date,
+      day: event.day,
+      month: event.month,
+      year: event.year,
+      description: event.description,
+      blogContent: event.blogContent,
+      youtubeId: event.youtubeId,
+      youtubeUrl: event.youtubeUrl,
+      highlights: event.highlights
+    }))
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const data = {
+    posts: posts,
+    lastUpdated: new Date().toISOString()
+  };
+
+  const filePath = path.join(__dirname, '../data/blogs.json');
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+
+  console.log(`✓ Generated ${posts.length} blog posts`);
+  return data;
+}
+
+/**
  * Main execution
  */
 async function main() {
@@ -169,6 +232,7 @@ async function main() {
 
     const eventsData = await fetchEvents();
     generateVideosFromEvents(eventsData);
+    generateBlogPosts(eventsData);
 
     console.log('\n✓ All data fetched successfully!\n');
   } catch (error) {
@@ -182,4 +246,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { fetchEvents, generateVideosFromEvents };
+module.exports = { fetchEvents, generateVideosFromEvents, generateBlogPosts };
