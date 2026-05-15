@@ -48,6 +48,97 @@ function getRichTextContent(property) {
 }
 
 /**
+ * Convert a Notion rich text array to an HTML string, preserving inline formatting
+ */
+function richTextToHtml(richTextArr) {
+  return (richTextArr || []).map(t => {
+    let text = t.plain_text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    if (t.href) text = `<a href="${t.href}" target="_blank" rel="noopener">${text}</a>`;
+    if (t.annotations) {
+      if (t.annotations.code)          text = `<code>${text}</code>`;
+      if (t.annotations.bold)          text = `<strong>${text}</strong>`;
+      if (t.annotations.italic)        text = `<em>${text}</em>`;
+      if (t.annotations.strikethrough) text = `<s>${text}</s>`;
+    }
+    return text;
+  }).join('');
+}
+
+/**
+ * Fetch all blocks from a Notion page and convert to an HTML string
+ */
+async function fetchPageContentHtml(pageId) {
+  const blocks = [];
+  let cursor;
+  do {
+    const res = await notion.blocks.children.list({
+      block_id: pageId,
+      start_cursor: cursor,
+      page_size: 100
+    });
+    blocks.push(...res.results);
+    cursor = res.has_more ? res.next_cursor : undefined;
+  } while (cursor);
+
+  const html = [];
+  let listType = null; // track open list
+
+  for (const block of blocks) {
+    const type = block.type;
+    const rt = block[type]?.rich_text;
+    const text = rt ? richTextToHtml(rt) : '';
+
+    // Close any open list if this block isn't a list item
+    if (listType && type !== 'bulleted_list_item' && type !== 'numbered_list_item') {
+      html.push(listType === 'ul' ? '</ul>' : '</ol>');
+      listType = null;
+    }
+
+    switch (type) {
+      case 'paragraph':
+        html.push(text ? `<p>${text}</p>` : '<br>');
+        break;
+      case 'heading_1':
+        html.push(`<h2>${text}</h2>`);
+        break;
+      case 'heading_2':
+        html.push(`<h3>${text}</h3>`);
+        break;
+      case 'heading_3':
+        html.push(`<h4>${text}</h4>`);
+        break;
+      case 'bulleted_list_item':
+        if (listType !== 'ul') { html.push('<ul>'); listType = 'ul'; }
+        html.push(`<li>${text}</li>`);
+        break;
+      case 'numbered_list_item':
+        if (listType !== 'ol') { html.push('<ol>'); listType = 'ol'; }
+        html.push(`<li>${text}</li>`);
+        break;
+      case 'quote':
+        html.push(`<blockquote>${text}</blockquote>`);
+        break;
+      case 'code':
+        html.push(`<pre><code>${text}</code></pre>`);
+        break;
+      case 'divider':
+        html.push('<hr>');
+        break;
+      default:
+        if (text) html.push(`<p>${text}</p>`);
+    }
+  }
+
+  // Close any trailing list
+  if (listType) html.push(listType === 'ul' ? '</ul>' : '</ol>');
+
+  return html.join('\n');
+}
+
+/**
  * Convert a string to a URL-friendly slug
  */
 function slugify(text) {
@@ -116,7 +207,6 @@ async function fetchEvents() {
         youtubeId: youtubeId,
         status: getPropertyValue(props.Status),
         meetupId: getPropertyValue(props['Meetup ID']),
-        blogContent: props['Blog Content'] ? getRichTextContent(props['Blog Content']) : '',
         blogPublished: props['Blog Published'] ? getPropertyValue(props['Blog Published']) : false
       };
     });
@@ -178,15 +268,20 @@ function generateVideosFromEvents(events) {
 }
 
 /**
- * Generate blog posts data from past events with Blog Published = true
+ * Generate blog posts data from events with Blog Published = true.
+ * Fetches page body blocks from Notion for each post.
  */
-function generateBlogPosts(events) {
+async function generateBlogPosts(events) {
   console.log('Generating blog posts from events...');
 
   const allEvents = [...events.upcoming, ...events.past];
-  const posts = allEvents
+  const publishedEvents = allEvents
     .filter(event => event.blogPublished)
-    .map(event => ({
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const posts = await Promise.all(publishedEvents.map(async event => {
+    const contentHtml = await fetchPageContentHtml(event.id);
+    return {
       id: event.id,
       slug: event.slug,
       title: event.title,
@@ -196,12 +291,12 @@ function generateBlogPosts(events) {
       month: event.month,
       year: event.year,
       description: event.description,
-      blogContent: event.blogContent,
+      contentHtml: contentHtml,
       youtubeId: event.youtubeId,
       youtubeUrl: event.youtubeUrl,
       highlights: event.highlights
-    }))
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+    };
+  }));
 
   const data = {
     posts: posts,
@@ -232,7 +327,7 @@ async function main() {
 
     const eventsData = await fetchEvents();
     generateVideosFromEvents(eventsData);
-    generateBlogPosts(eventsData);
+    await generateBlogPosts(eventsData);
 
     console.log('\n✓ All data fetched successfully!\n');
   } catch (error) {

@@ -103,14 +103,10 @@ async function loadBlogPost() {
         </div>`;
     }
 
-    // Blog content paragraphs
+    // Blog content from Notion page body
     let blogHtml = '';
-    if (post.blogContent) {
-      blogHtml = `<div class="blog-content">${post.blogContent
-        .split('\n\n')
-        .filter(p => p.trim())
-        .map(p => `<p>${escapeHtml(p.trim())}</p>`)
-        .join('')}</div>`;
+    if (post.contentHtml) {
+      blogHtml = `<div class="blog-content">${post.contentHtml}</div>`;
     }
 
     // Highlights
