@@ -1,0 +1,11 @@
+# OAuth credentials - never commit these
+client_secrets.json
+token.json
+
+# Asset / output staging
+defaults/intro.mp4
+defaults/outro.mp4
+out/
+*.mp4
+*.wav
+*.mov
