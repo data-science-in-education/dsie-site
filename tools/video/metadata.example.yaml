@@ -1,0 +1,32 @@
+# Per-talk metadata. Pass to upload.py with --metadata.
+# All fields are optional except `title`.
+
+title: "Causal inference in edtech: what works, for whom? — Dr. Lena Park"
+
+# Description shows on YouTube under the video. \n linebreaks become real
+# newlines. Use this block for the show-notes pattern.
+description: |
+  Talk by Dr. Lena Park (UCL Knowledge Lab), recorded at the Data Science in
+  Education meetup on 4 June 2026.
+
+  --
+  About the meetup:
+  A monthly meetup at the intersection of data and education.
+  https://www.meetup.com/data-science-in-education/
+
+  Past talks: https://datascienceineducation.events/past.html
+
+tags:
+  - data science
+  - education
+  - edtech
+  - causal inference
+  - rct
+
+# YouTube category. 27 = Education (most likely fit).
+# Full list: https://gist.github.com/dgp/1b24bf2961521bd75d6c
+category: 27
+
+# privacy: public | unlisted | private
+# Default until you're ready to make it public is "unlisted".
+privacy: unlisted
