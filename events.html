@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Upcoming and past Data Science in Education meetup events. RSVP on Meetup.">
+  <meta name="description" content="Upcoming and past Data Science in Education meetup talks. Mostly online, occasionally in London. RSVP on Meetup.">
   <title>Events — Data Science in Education</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,10 +50,10 @@
     <div class="eyebrow" style="color:rgba(255,255,255,.85)">Events</div>
     <div style="display:grid;grid-template-columns:1.8fr 1fr;gap:48px;align-items:end;margin-top:16px" class="hero-grid">
       <h1 class="display-lg" style="color:#fff">
-        Three upcoming.<br><i style="font-style:italic;color:var(--dse-pink)">Twenty-four</i> in the bank.
+        Talks, roughly once a month.
       </h1>
       <p class="body" style="font-size:18px;color:rgba(255,255,255,.85);max-width:380px">
-        We meet roughly once a month, alternating between in-person evenings in London and shorter online sessions. RSVPs handled by Meetup.
+        Mostly online, occasionally in London. Talks run 6–7pm London time — around 30–40 minutes plus questions. RSVPs handled on Meetup.
       </p>
     </div>
   </div>
@@ -61,162 +61,73 @@
 
 
 <!-- ================================================================
-     FILTER BAR
-     ================================================================ -->
-<section class="dse-section tight" style="padding-top:24px;padding-bottom:24px;border-top:1.5px solid var(--dse-line);border-bottom:1.5px solid var(--dse-line)">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="filter-pill events-filter-pill active" data-filter="all">All</button>
-      <button class="filter-pill events-filter-pill" data-filter="In person">In person</button>
-      <button class="filter-pill events-filter-pill" data-filter="Online">Online</button>
-      <button class="filter-pill events-filter-pill" data-filter="LLM">LLMs</button>
-      <button class="filter-pill events-filter-pill" data-filter="Causal">Causal</button>
-      <button class="filter-pill events-filter-pill" data-filter="KT">Knowledge tracing</button>
-    </div>
-    <div class="meta" style="font-family:'Space Grotesk',sans-serif;font-weight:500">
-      Showing <b id="events-count" style="color:var(--dse-ink)">2</b> of <span id="events-total">2</span> upcoming
-    </div>
-  </div>
-</section>
-
-
-<!-- ================================================================
-     UPCOMING GRID
+     UPCOMING
      ================================================================ -->
 <section class="dse-section">
-  <div id="events-empty" class="dse-empty-state" style="display:none">
-    <div class="h3">Nothing scheduled in this category yet.</div>
-    <p class="body" style="margin-top:8px;color:var(--dse-muted)">
-      Want to host one?
-      <a href="mailto:hello@datascienceineducation.events" style="color:var(--dse-blue);text-decoration:underline">Pitch a talk →</a>
-    </p>
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px">
+    <div>
+      <div class="eyebrow" style="color:var(--dse-blue)">Upcoming</div>
+      <h2 class="display-md" style="margin-top:12px">Next talks.</h2>
+    </div>
+    <a class="dse-btn ghost" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">See all on Meetup <span class="arr">↗</span></a>
   </div>
 
-  <div class="events-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
-
-    <article class="dse-event-card" data-tags="Causal,RCT,In person">
-      <div class="ec-body">
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="dse-chip">Causal</span>
-          <span class="dse-chip">RCT</span>
-          <span class="dse-chip">In person</span>
-        </div>
-        <div class="ec-title">Causal inference in edtech: what works, for whom?</div>
-        <p class="meta" style="font-size:15px;color:var(--dse-muted);line-height:1.5">
-          We test interventions in classrooms every day but rarely measure who truly benefits. A practical tour of the tools that go beyond average treatment effects.
-        </p>
-        <div class="ec-meta">
-          <span><b>Wed 4 Jun 2026</b></span>
-          <span>· 18:30 BST</span>
-          <span>· The Conduit, London</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="dse-speaker-avatar">LP</div>
-          <div style="font-size:14px">
-            <div style="font-weight:600">Dr. Lena Park</div>
-            <div style="color:var(--dse-muted)">UCL Knowledge Lab</div>
-          </div>
-        </div>
-      </div>
-      <div class="ec-footer">
-        <span style="color:var(--dse-muted)"><b style="color:var(--dse-ink)">64</b> going · 26 seats left</span>
-        <a class="dse-btn primary" style="padding:8px 16px;font-size:14px" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">RSVP <span class="arr">→</span></a>
-      </div>
-    </article>
-
-    <article class="dse-event-card" data-tags="KT,Benchmarks,In person">
-      <div class="ec-body">
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="dse-chip">KT</span>
-          <span class="dse-chip">Benchmarks</span>
-          <span class="dse-chip">In person</span>
-        </div>
-        <div class="ec-title">Knowledge tracing in 2026: are transformers really winning?</div>
-        <p class="meta" style="font-size:15px;color:var(--dse-muted);line-height:1.5">
-          A re-implementation of six headline knowledge-tracing models on the same dataset. Spoiler: the leaderboard lies.
-        </p>
-        <div class="ec-meta">
-          <span><b>Wed 17 Sep 2026</b></span>
-          <span>· 18:00 BST</span>
-          <span>· The Conduit, London</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="dse-speaker-avatar" style="background:var(--dse-sky);color:var(--dse-ink)">DS</div>
-          <div style="font-size:14px">
-            <div style="font-weight:600">Digory Smith + panel</div>
-            <div style="color:var(--dse-muted)">Eedi</div>
-          </div>
-        </div>
-      </div>
-      <div class="ec-footer">
-        <span style="color:var(--dse-muted)"><b style="color:var(--dse-ink)">42</b> going · 48 seats left</span>
-        <a class="dse-btn primary" style="padding:8px 16px;font-size:14px" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">RSVP <span class="arr">→</span></a>
-      </div>
-    </article>
-
+  <div class="dse-empty-state">
+    <div class="h3">Confirmed dates land on Meetup first.</div>
+    <p class="body" style="margin-top:8px;color:var(--dse-muted);max-width:560px;margin-left:auto;margin-right:auto">
+      We'll list upcoming talks here once they're confirmed. Join the meetup to get an email the moment we announce the next one.
+    </p>
+    <a class="dse-btn primary" style="margin-top:20px;display:inline-flex" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Join us on Meetup <span class="arr">→</span></a>
   </div>
 </section>
 
 
 <!-- ================================================================
-     PAST MEETUPS TABLE
+     PAST TALKS
      ================================================================ -->
 <section class="dse-section" style="background:var(--dse-cream)">
   <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:16px">
-    <h2 class="display-md">Past meetups.</h2>
-    <a class="dse-btn ghost" href="https://www.youtube.com/@datascienceineducation" target="_blank" rel="noreferrer">Watch on YouTube ↗</a>
+    <div>
+      <div class="eyebrow" style="color:var(--dse-blue)">Past talks</div>
+      <h2 class="display-md" style="margin-top:12px">Recordings and write-ups.</h2>
+    </div>
+    <a class="dse-btn ghost" href="blog.html">All past talks <span class="arr">→</span></a>
   </div>
 
-  <div class="dse-table-card">
-    <div class="dse-table-head past-table-cols" style="grid-template-columns:120px 1.8fr 1fr 1fr 100px">
-      <div>Date</div>
-      <div>Talk</div>
-      <div>Speaker</div>
-      <div class="past-table-venue">Venue</div>
-      <div class="past-table-rsvp" style="text-align:right">RSVPs</div>
-    </div>
+  <div class="dse-empty-state">
+    <div class="h3">Recordings on the way.</div>
+    <p class="body" style="margin-top:8px;color:var(--dse-muted);max-width:560px;margin-left:auto;margin-right:auto">
+      Each past talk gets its own page — video at the top, write-up underneath. We'll publish them here as they go up.
+    </p>
+    <a class="dse-btn ghost" style="margin-top:20px;display:inline-flex" href="https://www.youtube.com/@datascienceineducation" target="_blank" rel="noreferrer">YouTube channel <span class="arr">↗</span></a>
+  </div>
+</section>
 
-    <div class="dse-table-row past-table-cols" style="grid-template-columns:120px 1.8fr 1fr 1fr 100px">
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600">Apr 2026</div>
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px">Misconception mining at scale</div>
-      <div class="meta">Simon Woodhead</div>
-      <div class="meta past-table-venue">The Conduit · London</div>
-      <div class="past-table-rsvp" style="text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:600">88</div>
+
+<!-- ================================================================
+     PITCH A TALK
+     ================================================================ -->
+<section class="dse-section">
+  <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:56px;align-items:start" class="hero-grid">
+    <div>
+      <div class="eyebrow" style="color:var(--dse-blue)">Speakers</div>
+      <h2 class="display-md" style="margin-top:12px">Got a talk in mind?</h2>
     </div>
-    <div class="dse-table-row past-table-cols" style="grid-template-columns:120px 1.8fr 1fr 1fr 100px">
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600">Mar 2026</div>
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px">Teaching transformers to teach</div>
-      <div class="meta">Aman Verma</div>
-      <div class="meta past-table-venue">Online · Zoom</div>
-      <div class="past-table-rsvp" style="text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:600">312</div>
-    </div>
-    <div class="dse-table-row past-table-cols" style="grid-template-columns:120px 1.8fr 1fr 1fr 100px">
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600">Feb 2026</div>
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px">Item response theory, the bits the textbooks skip</div>
-      <div class="meta">Dr. Rachel Khoo</div>
-      <div class="meta past-table-venue">UCL Knowledge Lab</div>
-      <div class="past-table-rsvp" style="text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:600">71</div>
-    </div>
-    <div class="dse-table-row past-table-cols" style="grid-template-columns:120px 1.8fr 1fr 1fr 100px">
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600">Jan 2026</div>
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px">Adaptive practice: a five-year retrospective</div>
-      <div class="meta">Digory Smith</div>
-      <div class="meta past-table-venue">The Conduit · London</div>
-      <div class="past-table-rsvp" style="text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:600">84</div>
-    </div>
-    <div class="dse-table-row past-table-cols" style="grid-template-columns:120px 1.8fr 1fr 1fr 100px">
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600">Oct 2025</div>
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px">From PISA to production: scaling psychometric models</div>
-      <div class="meta">Prof. Jian Wei</div>
-      <div class="meta past-table-venue">Imperial Edtech Lab</div>
-      <div class="past-table-rsvp" style="text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:600">62</div>
+    <div>
+      <p class="body" style="font-size:18px;color:var(--dse-ink);line-height:1.6;max-width:620px">
+        We're always glad to hear from people working on something interesting at the intersection of data and education — research, methods, products, things that didn't quite go to plan. Talks usually run 30–40 minutes, mostly online, in front of a friendly audience.
+      </p>
+      <p class="body" style="margin-top:16px;color:var(--dse-muted);max-width:620px">
+        If you've got an idea you'd like to share, drop us a line with a couple of lines on what you'd cover.
+      </p>
+      <a class="dse-btn primary" style="margin-top:24px" href="mailto:hello@datascienceineducation.events?subject=Pitch%20for%20a%20DSE%20talk">Pitch a talk <span class="arr">→</span></a>
     </div>
   </div>
 </section>
 
 
 <!-- ================================================================
-     NEWSLETTER CTA (blue pattern)
+     JOIN THE MEETUP CTA (blue pattern)
      ================================================================ -->
 <section class="dse-section">
   <div class="dse-pattern" style="border-radius:28px;padding:64px 56px;position:relative;overflow:hidden">
@@ -230,16 +141,13 @@
     </svg>
     <div style="position:relative;z-index:2;color:#fff;display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center" class="hero-grid">
       <div>
-        <h2 class="display-md" style="color:#fff">Never miss<br>the next one.</h2>
-        <p class="lead" style="color:rgba(255,255,255,.85);margin-top:16px">Get the date, the venue and the one-line abstract the moment we have them.</p>
+        <h2 class="display-md" style="color:#fff">Don't miss<br>the next one.</h2>
+        <p class="lead" style="color:rgba(255,255,255,.85);margin-top:16px">Join us on Meetup — you'll get an email whenever we announce a new talk, with the date, the speaker and the RSVP link.</p>
       </div>
-      <form class="dse-newsletter-form dse-form on-blue" data-on-blue novalidate>
-        <div class="dse-form-row">
-          <input type="email" class="dse-input on-blue" placeholder="your@email.com" required>
-          <button type="submit" class="dse-btn white">Subscribe <span class="arr">→</span></button>
-        </div>
-        <p class="dse-form-hint">Monthly digest. New talks, slides, links. No spam.</p>
-      </form>
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:12px">
+        <a class="dse-btn white" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Join us on Meetup <span class="arr">→</span></a>
+        <p class="meta" style="color:rgba(255,255,255,.75);font-size:14px">Free. No spam. Cancel anytime.</p>
+      </div>
     </div>
   </div>
 </section>
