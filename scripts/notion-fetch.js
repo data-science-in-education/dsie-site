@@ -211,7 +211,9 @@ async function fetchEvents() {
       };
     });
 
-    // Separate upcoming and past events
+    // Separate upcoming and past events (Meetup is the source of truth for
+    // data/events.json; this in-memory split is only used to filter what we
+    // pass to generateTalkPages).
     const now = new Date();
     const upcomingEvents = events.filter(e => new Date(e.date) >= now);
     const pastEvents = events.filter(e => new Date(e.date) < now);
@@ -222,49 +224,12 @@ async function fetchEvents() {
       lastUpdated: new Date().toISOString()
     };
 
-    // Save to file
-    const filePath = path.join(__dirname, '../data/events.json');
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-
-    console.log(`✓ Fetched ${events.length} events (${upcomingEvents.length} upcoming, ${pastEvents.length} past)`);
+    console.log(`✓ Fetched ${events.length} events from Notion (${upcomingEvents.length} upcoming, ${pastEvents.length} past)`);
     return data;
   } catch (error) {
     console.error('Error fetching events:', error.message);
     throw error;
   }
-}
-
-/**
- * Generate videos data from past events with YouTube URLs
- */
-function generateVideosFromEvents(events) {
-  console.log('Generating videos from past events...');
-
-  // Filter past events that have YouTube URLs
-  const videos = events.past
-    .filter(event => event.youtubeUrl)
-    .map(event => ({
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      youtubeUrl: event.youtubeUrl,
-      youtubeId: event.youtubeId,
-      eventDate: event.date,
-      duration: '', // Can be manually added to Notion if needed
-      category: 'event-recording' // All videos from events are recordings
-    }));
-
-  const data = {
-    videos: videos,
-    lastUpdated: new Date().toISOString()
-  };
-
-  // Save to file
-  const filePath = path.join(__dirname, '../data/videos.json');
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-
-  console.log(`✓ Generated ${videos.length} videos from past events`);
-  return data;
 }
 
 /**
@@ -313,33 +278,30 @@ async function generateTalkPages(events) {
 
 /**
  * Main execution
+ *
+ * Notion is the source for past-talk write-ups (data/talks.json). Meetup
+ * is the source for upcoming events (data/events.json). If Notion creds
+ * aren't set we soft-exit so a Vercel build without secrets still works.
  */
 async function main() {
+  if (!process.env.NOTION_API_KEY || !process.env.NOTION_EVENTS_DB_ID) {
+    console.warn('notion-fetch: NOTION_API_KEY or NOTION_EVENTS_DB_ID not set; skipping.');
+    return;
+  }
+
   try {
-    // Validate environment variables
-    if (!process.env.NOTION_API_KEY) {
-      throw new Error('NOTION_API_KEY is not set in .env file');
-    }
-    if (!process.env.NOTION_EVENTS_DB_ID) {
-      throw new Error('NOTION_EVENTS_DB_ID is not set in .env file');
-    }
-
     console.log('\n=== Fetching data from Notion ===\n');
-
     const eventsData = await fetchEvents();
-    generateVideosFromEvents(eventsData);
     await generateTalkPages(eventsData);
-
-    console.log('\n✓ All data fetched successfully!\n');
+    console.log('\n✓ Notion talks data updated\n');
   } catch (error) {
     console.error('\n✗ Error:', error.message);
     process.exit(1);
   }
 }
 
-// Run if executed directly
 if (require.main === module) {
   main();
 }
 
-module.exports = { fetchEvents, generateVideosFromEvents, generateTalkPages };
+module.exports = { fetchEvents, generateTalkPages };

@@ -64,14 +64,30 @@ npm run dev          # = build-data + serve at http://localhost:8000
 
 ## Available scripts
 
-| Script              | What it does                                                       |
-| ------------------- | ------------------------------------------------------------------ |
-| `npm run fetch-notion` | Pull events from Notion → `data/events.json` + `data/talks.json` |
-| `npm run sync-meetup`  | Sync Meetup.com events into Notion (requires Meetup Pro)        |
-| `npm run og`           | Regenerate `images/og/*.png` (site default + per-page + per-talk) |
-| `npm run build-data`   | `fetch-notion` + `og` in one step                              |
-| `npm run serve`        | Static file server on :8000                                    |
-| `npm run dev`          | `build-data` + `serve`                                         |
+| Script                  | What it does                                                                |
+| ----------------------- | --------------------------------------------------------------------------- |
+| `npm run fetch-meetup`  | Pull upcoming events from Meetup → `data/events.json` (the upcoming page)   |
+| `npm run fetch-notion`  | Pull past-talk write-ups from Notion → `data/talks.json` (the past page)    |
+| `npm run sync-meetup`   | One-way sync Meetup events into Notion (for adding speaker / write-up)      |
+| `npm run og`            | Regenerate `images/og/*.png` (site default + per-page + per-talk)           |
+| `npm run build-data`    | `fetch-meetup` + `fetch-notion` + `og` in one step                          |
+| `npm run serve`         | Static file server on :8000                                                 |
+| `npm run dev`           | `build-data` + `serve`                                                      |
+
+### Data pipeline
+
+```
+Meetup ─ fetch-meetup ─▶ data/events.json  ─▶ upcoming.html
+   │
+   └─── sync-meetup ──▶ Notion (enrich: Speaker, Blog content, YouTube)
+                          │
+                          └─ fetch-notion ─▶ data/talks.json ─▶ past.html / past-talk.html
+```
+
+Meetup is the source of truth for upcoming events. Notion is the source
+of truth for past-talk pages (the recording, the write-up, the speaker
+bio). Both fetch scripts soft-exit if their credentials aren't set, so
+Vercel builds without secrets still produce a usable empty-state site.
 
 ## Deploying
 
