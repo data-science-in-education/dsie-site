@@ -15,6 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#3514FF">
   <!-- END:favicon -->
   <!-- BEGIN:social -->
   <link rel="canonical" href="https://datascienceineducation.events/upcoming.html">
@@ -55,14 +56,14 @@
   <div class="dse-pattern-nav">
     <nav class="dse-nav transparent">
       <a class="dse-nav-logo" href="index.html">
-        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="26">
+        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" width="101" height="26">
       </a>
-      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false">
-        <span></span><span></span><span></span>
+      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="dse-nav-menu">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
       </button>
-      <div class="dse-nav-links">
+      <div class="dse-nav-links" id="dse-nav-menu">
         <a class="dse-nav-link" href="index.html">Home</a>
-        <a class="dse-nav-link active" href="upcoming.html">Upcoming</a>
+        <a class="dse-nav-link active" aria-current="page" href="upcoming.html">Upcoming</a>
         <a class="dse-nav-link" href="past.html">Past</a>
         <a class="dse-nav-link" href="about.html">About</a>
         <a class="dse-btn white dse-nav-cta" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Join the meetup <span class="arr">→</span></a>
@@ -103,11 +104,11 @@
 <!-- ================================================================
      PITCH A TALK / HOST
      ================================================================ -->
-<section class="dse-section">
+<section class="dse-section" aria-labelledby="upcoming-pitch-h">
   <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:56px;align-items:start" class="hero-grid">
     <div>
       <div class="eyebrow" style="color:var(--dse-blue)">Speakers &amp; venues</div>
-      <h2 class="display-md" style="margin-top:12px">Got a talk in mind?</h2>
+      <h2 id="upcoming-pitch-h" class="display-md" style="margin-top:12px">Got a talk in mind?</h2>
     </div>
     <div>
       <p class="body" style="font-size:18px;color:var(--dse-ink);line-height:1.6;max-width:620px">
@@ -128,7 +129,7 @@
 <!-- ================================================================
      JOIN THE MEETUP CTA (blue pattern)
      ================================================================ -->
-<section class="dse-section">
+<section class="dse-section" aria-labelledby="upcoming-cta-h">
   <div class="dse-pattern" style="border-radius:28px;padding:64px 56px;position:relative;overflow:hidden">
     <svg class="dse-pattern-svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <ellipse cx="1101" cy="587" rx="538" ry="537" fill="#fff" opacity="0.1"/>
@@ -140,7 +141,7 @@
     </svg>
     <div style="position:relative;z-index:2;color:#fff;display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center" class="hero-grid">
       <div>
-        <h2 class="display-md" style="color:#fff">Don't miss<br>the next one.</h2>
+        <h2 id="upcoming-cta-h" class="display-md" style="color:#fff">Don't miss<br>the next one.</h2>
         <p class="lead" style="color:rgba(255,255,255,.85);margin-top:16px">Join us on Meetup — you'll get an email whenever we announce a new talk, with the date, the speaker and the RSVP link.</p>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-start;gap:12px">
@@ -158,7 +159,7 @@
 <footer class="dse-footer">
   <div class="dse-footer-grid">
     <div>
-      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="32" style="display:block">
+      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" width="125" height="32" style="display:block">
       <p style="margin-top:20px;max-width:380px;color:rgba(255,255,255,.75);font-size:16px;line-height:1.5">
         A meetup at the intersection of data and education. Mostly online, occasionally in London.
       </p>
@@ -180,7 +181,7 @@
         <li><a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Meetup ↗</a></li>
         <li><a href="https://www.linkedin.com/company/data-science-in-education" target="_blank" rel="noreferrer">LinkedIn ↗</a></li>
         <li><a href="https://www.youtube.com/@datascienceineducation" target="_blank" rel="noreferrer">YouTube ↗</a></li>
-        <li><a href="mailto:simon@datascienceineducation.events">simon@…events</a></li>
+        <li><a href="mailto:simon@datascienceineducation.events" aria-label="Email Simon (opens mail client)">Email Simon</a></li>
       </ul>
     </div>
     <div>

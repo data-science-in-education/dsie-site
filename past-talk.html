@@ -15,6 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#3514FF">
   <!-- END:favicon -->
   <!-- BEGIN:social -->
   <link rel="canonical" href="https://datascienceineducation.events/past-talk.html">
@@ -55,15 +56,15 @@
   <div class="dse-pattern-nav">
     <nav class="dse-nav transparent">
       <a class="dse-nav-logo" href="index.html">
-        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="26">
+        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" width="101" height="26">
       </a>
-      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false">
-        <span></span><span></span><span></span>
+      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="dse-nav-menu">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
       </button>
-      <div class="dse-nav-links">
+      <div class="dse-nav-links" id="dse-nav-menu">
         <a class="dse-nav-link" href="index.html">Home</a>
         <a class="dse-nav-link" href="upcoming.html">Upcoming</a>
-        <a class="dse-nav-link active" href="past.html">Past</a>
+        <a class="dse-nav-link active" aria-current="page" href="past.html">Past</a>
         <a class="dse-nav-link" href="about.html">About</a>
         <a class="dse-btn white dse-nav-cta" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Join the meetup <span class="arr">→</span></a>
       </div>
@@ -97,7 +98,7 @@
 <footer class="dse-footer">
   <div class="dse-footer-grid">
     <div>
-      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="32" style="display:block">
+      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" width="125" height="32" style="display:block">
       <p style="margin-top:20px;max-width:380px;color:rgba(255,255,255,.75);font-size:16px;line-height:1.5">
         A meetup at the intersection of data and education. Mostly online, occasionally in London.
       </p>
@@ -119,7 +120,7 @@
         <li><a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Meetup ↗</a></li>
         <li><a href="https://www.linkedin.com/company/data-science-in-education" target="_blank" rel="noreferrer">LinkedIn ↗</a></li>
         <li><a href="https://www.youtube.com/@datascienceineducation" target="_blank" rel="noreferrer">YouTube ↗</a></li>
-        <li><a href="mailto:simon@datascienceineducation.events">simon@…events</a></li>
+        <li><a href="mailto:simon@datascienceineducation.events" aria-label="Email Simon (opens mail client)">Email Simon</a></li>
       </ul>
     </div>
     <div>

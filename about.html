@@ -15,6 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#3514FF">
   <!-- END:favicon -->
   <!-- BEGIN:social -->
   <link rel="canonical" href="https://datascienceineducation.events/about.html">
@@ -55,16 +56,16 @@
   <div class="dse-pattern-nav">
     <nav class="dse-nav transparent">
       <a class="dse-nav-logo" href="index.html">
-        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="26">
+        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" width="101" height="26">
       </a>
-      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false">
-        <span></span><span></span><span></span>
+      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="dse-nav-menu">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
       </button>
-      <div class="dse-nav-links">
+      <div class="dse-nav-links" id="dse-nav-menu">
         <a class="dse-nav-link" href="index.html">Home</a>
         <a class="dse-nav-link" href="upcoming.html">Upcoming</a>
         <a class="dse-nav-link" href="past.html">Past</a>
-        <a class="dse-nav-link active" href="about.html">About</a>
+        <a class="dse-nav-link active" aria-current="page" href="about.html">About</a>
         <a class="dse-btn white dse-nav-cta" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Join the meetup <span class="arr">→</span></a>
       </div>
     </nav>
@@ -85,9 +86,9 @@
 <!-- ================================================================
      ABOUT — WHY / WHAT / WHO
      ================================================================ -->
-<section class="dse-section tight" style="border-top:1.5px solid var(--dse-line)">
+<section class="dse-section tight" style="border-top:1.5px solid var(--dse-line)" aria-labelledby="about-why-h">
   <div class="eyebrow" style="color:var(--dse-muted)">About this meetup</div>
-  <h2 class="display-md" style="margin-top:12px;max-width:760px">Built around the intersection.</h2>
+  <h2 id="about-why-h" class="display-md" style="margin-top:12px;max-width:760px">Built around the intersection.</h2>
 
   <div class="hero-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:40px">
     <div>
@@ -115,9 +116,9 @@
 <!-- ================================================================
      ORGANISERS
      ================================================================ -->
-<section class="dse-section">
+<section class="dse-section" aria-labelledby="about-organisers-h">
   <div style="margin-bottom:32px">
-    <div class="eyebrow" style="color:var(--dse-blue)">Organisers</div>
+    <h2 id="about-organisers-h" class="eyebrow" style="color:var(--dse-blue)">Organisers</h2>
   </div>
 
   <div class="dse-organiser-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px">
@@ -152,7 +153,7 @@
 <footer class="dse-footer">
   <div class="dse-footer-grid">
     <div>
-      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="32" style="display:block">
+      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" width="125" height="32" style="display:block">
       <p style="margin-top:20px;max-width:380px;color:rgba(255,255,255,.75);font-size:16px;line-height:1.5">
         A meetup at the intersection of data and education. Mostly online, occasionally in London.
       </p>
@@ -174,7 +175,7 @@
         <li><a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Meetup ↗</a></li>
         <li><a href="https://www.linkedin.com/company/data-science-in-education" target="_blank" rel="noreferrer">LinkedIn ↗</a></li>
         <li><a href="https://www.youtube.com/@datascienceineducation" target="_blank" rel="noreferrer">YouTube ↗</a></li>
-        <li><a href="mailto:simon@datascienceineducation.events">simon@…events</a></li>
+        <li><a href="mailto:simon@datascienceineducation.events" aria-label="Email Simon (opens mail client)">Email Simon</a></li>
       </ul>
     </div>
     <div>

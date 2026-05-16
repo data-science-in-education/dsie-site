@@ -160,14 +160,14 @@ button { font: inherit; cursor: pointer; border: 0; }
 .dse-footer h4 {
   font-family: "Space Grotesk", sans-serif; font-weight: 600;
   font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
-  margin-bottom: 18px; color: rgba(255,255,255,.55);
+  margin-bottom: 18px; color: rgba(255,255,255,.7);
 }
 .dse-footer ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
 .dse-footer ul a { color: rgba(255,255,255,.85); transition: color .15s; }
 .dse-footer ul a:hover { color: #fff; }
 .dse-footer-bottom {
   display: flex; justify-content: space-between; align-items: center;
-  padding-top: 28px; color: rgba(255,255,255,.45); font-size: 13px;
+  padding-top: 28px; color: rgba(255,255,255,.6); font-size: 13px;
 }
 
 /* ---- pattern panel ---- */
@@ -236,6 +236,7 @@ button { font: inherit; cursor: pointer; border: 0; }
 .partners-bar {
   display: flex; align-items: center; gap: 36px;
   justify-content: space-between; flex-wrap: wrap;
+  list-style: none; padding: 0; margin: 0;
 }
 .partner-name {
   font-family: "Space Grotesk", sans-serif; font-weight: 600;
@@ -388,4 +389,18 @@ button { font: inherit; cursor: pointer; border: 0; }
   .display-lg { font-size: 40px; }
   .display-md { font-size: 34px; }
   .dse-btn { font-size: 14px; padding: 12px 18px; }
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .dse-btn:hover { transform: none; }
+  .dse-btn:hover .arr { transform: none; }
 }

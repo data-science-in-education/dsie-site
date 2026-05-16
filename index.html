@@ -15,6 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#3514FF">
   <!-- END:favicon -->
   <!-- BEGIN:social -->
   <link rel="canonical" href="https://datascienceineducation.events/">
@@ -55,13 +56,13 @@
   <div class="dse-pattern-nav">
     <nav class="dse-nav transparent">
       <a class="dse-nav-logo" href="index.html">
-        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="26">
+        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" width="101" height="26">
       </a>
-      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false">
-        <span></span><span></span><span></span>
+      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="dse-nav-menu">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
       </button>
-      <div class="dse-nav-links">
-        <a class="dse-nav-link active" href="index.html">Home</a>
+      <div class="dse-nav-links" id="dse-nav-menu">
+        <a class="dse-nav-link active" aria-current="page" href="index.html">Home</a>
         <a class="dse-nav-link" href="upcoming.html">Upcoming</a>
         <a class="dse-nav-link" href="past.html">Past</a>
         <a class="dse-nav-link" href="about.html">About</a>
@@ -99,31 +100,31 @@
 <!-- ================================================================
      PARTNERS / SPEAKERS BAR
      ================================================================ -->
-<section class="dse-section tight" style="padding-top:36px;padding-bottom:36px;border-bottom:1.5px solid var(--dse-line)">
-  <div class="partners-bar">
-    <span class="eyebrow" style="color:var(--dse-muted)">Speakers come from</span>
-    <span class="partner-name">Eedi</span>
-    <span class="partner-name">Google</span>
-    <span class="partner-name">UMass</span>
-    <span class="partner-name">Renaissance Philanthropy</span>
-    <span class="partner-name">What Worked Education</span>
-    <span class="partner-name">Mathematica</span>
-    <span class="partner-name">Stanford</span>
-    <span class="partner-name">The Learning Agency</span>
-    <span class="partner-name">Schooldash</span>
-    <span class="partner-name">Sparx</span>
-  </div>
+<section class="dse-section tight" style="padding-top:36px;padding-bottom:36px;border-bottom:1.5px solid var(--dse-line)" aria-label="Speakers come from">
+  <ul class="partners-bar">
+    <li class="eyebrow" aria-hidden="true" style="color:var(--dse-muted)">Speakers come from</li>
+    <li class="partner-name">Eedi</li>
+    <li class="partner-name">Google</li>
+    <li class="partner-name">UMass</li>
+    <li class="partner-name">Renaissance Philanthropy</li>
+    <li class="partner-name">What Worked Education</li>
+    <li class="partner-name">Mathematica</li>
+    <li class="partner-name">Stanford</li>
+    <li class="partner-name">The Learning Agency</li>
+    <li class="partner-name">Schooldash</li>
+    <li class="partner-name">Sparx</li>
+  </ul>
 </section>
 
 
 <!-- ================================================================
      UPCOMING EVENTS
      ================================================================ -->
-<section class="dse-section">
+<section class="dse-section" aria-labelledby="home-upcoming-h">
   <div class="events-2col" style="display:grid;grid-template-columns:1fr 1.6fr;gap:56px;align-items:start">
     <div class="events-sticky" style="position:sticky;top:32px">
       <div class="eyebrow" style="color:var(--dse-blue)">Upcoming</div>
-      <h2 class="display-md" style="margin-top:12px">Roughly one<br>talk a month.</h2>
+      <h2 id="home-upcoming-h" class="display-md" style="margin-top:12px">Roughly one<br>talk a month.</h2>
       <p class="body" style="margin-top:20px;color:var(--dse-muted);max-width:320px">
         Talks usually run 6–7pm London time, around 30–40 minutes plus questions. Mostly online, occasionally in London.
       </p>
@@ -148,11 +149,11 @@
 <!-- ================================================================
      PAST TALKS  (dark section — recordings + write-ups)
      ================================================================ -->
-<section id="past-talks" class="dse-section" style="background:var(--dse-ink);color:#fff">
+<section id="past-talks" class="dse-section" style="background:var(--dse-ink);color:#fff" aria-labelledby="home-past-h">
   <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px">
     <div>
       <div class="eyebrow" style="color:var(--dse-sky)">Past</div>
-      <h2 class="display-md" style="margin-top:12px;color:#fff">Recordings and write-ups.</h2>
+      <h2 id="home-past-h" class="display-md" style="margin-top:12px;color:#fff">Recordings and write-ups.</h2>
     </div>
     <a class="dse-btn ghost-white" href="past.html">All past talks <span class="arr">→</span></a>
   </div>
@@ -170,11 +171,11 @@
 <!-- ================================================================
      JOIN THE MEETUP CTA
      ================================================================ -->
-<section class="dse-section" style="padding-top:56px;padding-bottom:96px">
+<section class="dse-section" style="padding-top:56px;padding-bottom:96px" aria-labelledby="home-cta-h">
   <div class="dse-newsletter-card">
     <div>
       <img src="images/logos/DSE-badge.svg" alt="" width="48" height="48" style="display:block">
-      <h2 class="display-sm" style="margin-top:20px">Don't miss<br>the next one.</h2>
+      <h2 id="home-cta-h" class="display-sm" style="margin-top:20px">Don't miss<br>the next one.</h2>
       <p class="body" style="margin-top:16px;color:var(--dse-muted);max-width:420px">
         Join the meetup on Meetup.com — you'll get an email whenever we announce a new talk, with the date, the speaker and the RSVP link.
       </p>
@@ -193,7 +194,7 @@
 <footer class="dse-footer">
   <div class="dse-footer-grid">
     <div>
-      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="32" style="display:block">
+      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" width="125" height="32" style="display:block">
       <p style="margin-top:20px;max-width:380px;color:rgba(255,255,255,.75);font-size:16px;line-height:1.5">
         A meetup at the intersection of data and education. Mostly online, occasionally in London.
       </p>
@@ -215,7 +216,7 @@
         <li><a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Meetup ↗</a></li>
         <li><a href="https://www.linkedin.com/company/data-science-in-education" target="_blank" rel="noreferrer">LinkedIn ↗</a></li>
         <li><a href="https://www.youtube.com/@datascienceineducation" target="_blank" rel="noreferrer">YouTube ↗</a></li>
-        <li><a href="mailto:simon@datascienceineducation.events">simon@…events</a></li>
+        <li><a href="mailto:simon@datascienceineducation.events" aria-label="Email Simon (opens mail client)">Email Simon</a></li>
       </ul>
     </div>
     <div>

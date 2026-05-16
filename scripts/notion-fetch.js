@@ -268,8 +268,9 @@ function generateVideosFromEvents(events) {
 }
 
 /**
- * Generate blog posts data from events with Blog Published = true.
- * Fetches page body blocks from Notion for each post.
+ * Generate per-talk page data from events with Blog Published = true.
+ * Fetches the Notion page body for each, converts blocks to HTML,
+ * and writes everything to data/talks.json.
  */
 async function generateTalkPages(events) {
   console.log('Generating past-talk pages from events...');

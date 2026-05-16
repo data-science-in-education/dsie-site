@@ -25,7 +25,10 @@ async function fetchTalks() {
 }
 
 // ----------------------------------------------------------------
-// Blog listing page
+// Past-talks listing page
+// (DOM IDs and class names still carry the "blog-" prefix from the
+// pre-rename version; element IDs are coordinated with past.html
+// and past-talk.html so any renaming needs to happen there too.)
 // ----------------------------------------------------------------
 async function loadBlogListing() {
   const grid      = document.getElementById('blog-grid');
@@ -41,8 +44,6 @@ async function loadBlogListing() {
       if (featuredEl) featuredEl.style.display = 'none';
       const section = document.getElementById('featured-section');
       if (section) section.style.display = 'none';
-      const tagBar = document.getElementById('blog-tag-bar');
-      if (tagBar) tagBar.style.display = 'none';
       return;
     }
 
@@ -132,7 +133,7 @@ function buildBlogCard(post, index) {
 }
 
 // ----------------------------------------------------------------
-// Single blog post page
+// Single past-talk page
 // ----------------------------------------------------------------
 async function loadBlogPost() {
   const params = new URLSearchParams(window.location.search);
