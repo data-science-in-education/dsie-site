@@ -11,7 +11,12 @@ The speaker recording is assumed to already contain the slides (i.e. a screen re
 
 ```bash
 # 1. Tools
-brew install ffmpeg                       # or apt install ffmpeg
+#    WSL / Ubuntu / Debian
+sudo apt update && sudo apt install -y ffmpeg python3-venv
+
+#    macOS         : brew install ffmpeg
+#    Windows (PS)  : winget install Gyan.FFmpeg   (or: choco install ffmpeg)
+
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r tools/video/requirements.txt
 
@@ -27,6 +32,12 @@ cp /path/to/outro.mp4 tools/video/defaults/outro.mp4
 #    - Download client_secrets.json -> tools/video/client_secrets.json
 #    - Sign in with the Google account that owns/manages the YT channel
 ```
+
+On WSL, the OAuth consent step opens a browser via `xdg-open`. If that
+doesn't pop a browser on the Windows host, copy the URL the script
+prints and open it manually in your normal browser; the consent
+redirect comes back to `http://localhost:<port>` which WSL forwards
+automatically.
 
 `client_secrets.json` and `token.json` are gitignored — they never leave your machine.
 
@@ -78,7 +89,7 @@ All videos are normalised to a single spec so they play back consistently and co
 
 ## Troubleshooting
 
-**"ffmpeg not found"** — install ffmpeg (`brew install ffmpeg` on macOS).
+**"ffmpeg not found"** — install ffmpeg: `sudo apt install ffmpeg` on WSL/Ubuntu, `brew install ffmpeg` on macOS, or `winget install Gyan.FFmpeg` on Windows.
 
 **"client_secrets.json not found"** — finish the Google Cloud Console step in setup above.
 
