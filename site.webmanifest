@@ -1,0 +1,14 @@
+{
+  "name": "Data Science in Education",
+  "short_name": "DSE Meetup",
+  "description": "A monthly meetup at the intersection of data and education.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#FFFFFF",
+  "theme_color": "#3514FF",
+  "icons": [
+    { "src": "/images/favicon-32.png",      "sizes": "32x32",   "type": "image/png" },
+    { "src": "/images/apple-touch-icon.png","sizes": "180x180", "type": "image/png" },
+    { "src": "/images/logos/DSE-badge.svg", "sizes": "any",     "type": "image/svg+xml" }
+  ]
+}

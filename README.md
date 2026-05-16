@@ -1,243 +1,113 @@
-# Data Science in Education Website
+# Data Science in Education
 
-A modern, responsive website for the Data Science in Education community, powered by Notion as a CMS with optional Meetup.com integration.
+The website for the **Data Science in Education** meetup — a monthly meetup at
+the intersection of data and education. Mostly online, occasionally in London.
 
-## Features
+Static HTML/CSS/JS, with a small Node build step that pulls upcoming &
+past-talk data from Notion and renders OG images.
 
-- 🎨 **Modern Design**: Clean, professional design inspired by eedi.com with Inter font typography
-- 📝 **Notion CMS**: Manage all events in a single Notion database (upcoming & past events with optional videos)
-- 🔄 **Meetup Sync**: Automatically sync events from Meetup.com to Notion
-- 📱 **Responsive**: Mobile-friendly design that works on all devices
-- ⚡ **Static Site**: Fast loading, can be hosted anywhere (GitHub Pages, Netlify, etc.)
+## Pages
 
-## Quick Start
+| URL                 | What                                                    |
+| ------------------- | ------------------------------------------------------- |
+| `/`                 | Home — partners, upcoming/past previews                 |
+| `/upcoming.html`    | Upcoming talks (from `data/events.json`)                |
+| `/past.html`        | Past talks listing (from `data/talks.json`)             |
+| `/past-talk.html`   | Single past-talk page — video + write-up                |
+| `/about.html`       | About + organisers                                      |
 
-### 1. Install Dependencies
-
-```bash
-npm install
-```
-
-### 2. Set Up Notion (Required)
-
-Follow the detailed guide in [NOTION_SETUP.md](./NOTION_SETUP.md) to:
-- Create your Notion Events database (handles both upcoming and past events)
-- Get your Notion API key
-- Configure your `.env` file
-
-### 3. Set Up Meetup Sync (Optional)
-
-If you want to automatically sync events from Meetup.com:
-
-1. You need a **Meetup Pro subscription**
-2. Create an OAuth consumer at https://secure.meetup.com/meetup_api/oauth_consumers/
-3. Add your credentials to `.env`:
-   ```
-   MEETUP_OAUTH_TOKEN=your_token_here
-   MEETUP_GROUP_URLNAME=your_group_name
-   ```
-
-### 4. Fetch Data from Notion
-
-```bash
-npm run fetch-notion
-```
-
-This will:
-- Fetch all published events from your Notion database
-- Generate `data/events.json` (upcoming and past events)
-- Generate `data/videos.json` (from past events with YouTube URLs)
-- These files are used by the website to display content
-
-### 5. Sync Meetup Events (Optional)
-
-```bash
-npm run sync-meetup
-```
-
-This will:
-- Fetch events from your Meetup group
-- Create/update them in your Notion database
-- You can then run `npm run fetch-notion` to update the website
-
-### 6. View the Website
-
-```bash
-npm run serve
-```
-
-Then open http://localhost:8000 in your browser.
-
-## Project Structure
+## Project layout
 
 ```
-dsie-site/
-├── index.html              # Homepage
-├── events.html             # Events listing page
-├── videos.html             # Videos listing page
-├── css/
-│   └── styles.css          # All styles
+.
+├── index.html
+├── upcoming.html        # populated by js/upcoming-loader.js
+├── past.html            # populated by js/past-loader.js
+├── past-talk.html       # populated by js/past-loader.js (?id=<slug>)
+├── about.html
+├── css/styles.css
 ├── js/
-│   ├── main.js             # UI interactions
-│   └── data-loader.js      # Loads and renders data from JSON files
+│   ├── main.js              # nav + interactions
+│   ├── upcoming-loader.js   # renders upcoming list from data/events.json
+│   └── past-loader.js       # renders past-talks listing + single-talk pages
 ├── scripts/
-│   ├── notion-fetch.js     # Fetches data from Notion
-│   └── meetup-sync.js      # Syncs Meetup events to Notion
-├── data/
-│   ├── events.json         # Generated events data
-│   └── videos.json         # Generated videos data
-├── .env                    # Your environment variables (not in git)
-└── .env.example            # Example environment variables
-
+│   ├── notion-fetch.js      # pulls events from Notion -> data/*.json
+│   ├── meetup-sync.js       # syncs Meetup.com events into Notion (Pro only)
+│   └── og-image.js          # renders 1200x630 PNGs into images/og/
+├── data/                    # generated; gitignored
+│   ├── events.json          # upcoming + past
+│   └── talks.json           # past-talk pages (Notion page bodies)
+├── images/
+│   ├── logos/               # DSE-badge.svg, DSE-logo-*.svg
+│   ├── organisers/          # simon.png, digory.jpg
+│   └── og/                  # generated 1200x630 social preview cards
+├── vercel.json              # security headers + redirects from old URLs
+├── sitemap.xml
+├── robots.txt
+└── site.webmanifest         # PWA manifest (icons, theme color)
 ```
 
-## Workflow
-
-### Regular Content Updates
-
-1. **Add/Edit content in Notion** (add events, update past events with video URLs, etc.)
-2. **Fetch from Notion**: `npm run fetch-notion`
-3. **Deploy**: Push changes to your hosting platform
-
-### Meetup Integration Workflow
-
-1. **Events are created on Meetup.com** (or already exist)
-2. **Sync to Notion**: `npm run sync-meetup`
-3. **Review/edit in Notion** (add highlights, adjust descriptions, etc.)
-4. **Fetch to website**: `npm run fetch-notion`
-5. **Deploy**: Push changes to your hosting platform
-
-You can automate steps 2-4 with GitHub Actions or similar CI/CD tools.
-
-## Development
-
-### Local Development
+## Quick start
 
 ```bash
-# Install dependencies
+git clone https://github.com/data-science-in-education/dsie-site.git
+cd dsie-site
 npm install
 
-# Fetch latest data from Notion
-npm run fetch-notion
+# Set up Notion access - see NOTION_SETUP.md
+cp .env.example .env
+# ... edit .env ...
 
-# Start local server
-npm run serve
+# Pull data, render OG images, and serve
+npm run dev          # = build-data + serve at http://localhost:8000
 ```
 
-### Available Scripts
+## Available scripts
 
-- `npm run fetch-notion` - Fetch events from Notion and generate videos from past events
-- `npm run sync-meetup` - Sync Meetup events to Notion
-- `npm run build-data` - Alias for fetch-notion
-- `npm run serve` - Start local HTTP server
-- `npm run dev` - Fetch data and start server
+| Script              | What it does                                                       |
+| ------------------- | ------------------------------------------------------------------ |
+| `npm run fetch-notion` | Pull events from Notion → `data/events.json` + `data/talks.json` |
+| `npm run sync-meetup`  | Sync Meetup.com events into Notion (requires Meetup Pro)        |
+| `npm run og`           | Regenerate `images/og/*.png` (site default + per-page + per-talk) |
+| `npm run build-data`   | `fetch-notion` + `og` in one step                              |
+| `npm run serve`        | Static file server on :8000                                    |
+| `npm run dev`          | `build-data` + `serve`                                         |
 
-## Deployment
+## Deploying
 
-### GitHub Pages
+The site is a pile of static files plus `vercel.json`, so any static host
+works. Vercel is the easiest path:
 
-1. Push your code to GitHub
-2. Go to Settings → Pages
-3. Set source to your branch (e.g., `gh-pages` or `main`)
-4. Your site will be live at `https://yourusername.github.io/repo-name`
+1. On vercel.com, **Import** `data-science-in-education/dsie-site`.
+2. Build command: `npm run build-data` (or leave blank if you commit the
+   `data/` files yourself).
+3. Output directory: `./` (project root).
+4. Add `NOTION_API_KEY` and `NOTION_EVENTS_DB_ID` as project env vars if
+   you want the build to fetch fresh Notion data.
 
-**Important**: Remember to run `npm run fetch-notion` before deploying to update your data files.
+Vercel auto-deploys every push: `main` to your production domain, every
+branch to a preview URL.
 
-### Netlify / Vercel
+## Adding a talk
 
-1. Connect your Git repository
-2. Set build command: `npm run fetch-notion` (optional, if you want to fetch on deploy)
-3. Set publish directory: `./` (root)
-4. Add environment variables in the platform settings
+1. In Notion, add a row to the Events database — see
+   [NOTION_SETUP.md](./NOTION_SETUP.md) for the schema.
+2. For past talks: tick `Blog Published`, paste YouTube URL into
+   `YouTube URL`, write up the talk in the Notion page body.
+3. Run `npm run build-data` (or push and let Vercel run it). The talk
+   shows up on `/past.html` and gets its own page at
+   `/past-talk.html?id=<slug>` plus an OG image at
+   `/images/og/talk-<slug>.png`.
 
-### Automation with GitHub Actions
+## Customising
 
-Create `.github/workflows/update-data.yml`:
-
-```yaml
-name: Update Data from Notion
-
-on:
-  schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight
-  workflow_dispatch:  # Allow manual trigger
-
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - run: npm install
-      - run: npm run fetch-notion
-        env:
-          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-          NOTION_EVENTS_DB_ID: ${{ secrets.NOTION_EVENTS_DB_ID }}
-      - run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add data/
-          git commit -m "Update data from Notion" || exit 0
-          git push
-```
-
-Add your Notion credentials as GitHub secrets.
-
-## Customization
-
-### Colors and Styling
-
-Edit `css/styles.css` - look for the `:root` section at the top to change colors:
-
-```css
-:root {
-    --primary-color: #0066cc;
-    --secondary-color: #00b8a9;
-    /* ... other colors ... */
-}
-```
-
-### Content Sections
-
-The homepage has these main sections:
-- Hero banner
-- Mission statement
-- Featured videos
-- Upcoming events
-
-Edit `index.html` to modify these sections.
-
-## Troubleshooting
-
-### "No events/videos showing"
-
-1. Check that you've run `npm run fetch-notion`
-2. Verify that `data/events.json` and `data/videos.json` exist
-3. Check that your Notion databases have items with "Published" checked
-4. Open browser console for JavaScript errors
-
-### "Error fetching from Notion"
-
-1. Verify your `.env` file has correct credentials
-2. Check that your Notion integration has access to the databases
-3. Verify database IDs are correct (32 character strings from the URL)
-
-### "Meetup sync not working"
-
-1. Requires Meetup Pro subscription
-2. Check OAuth token is valid
-3. Verify group URL name is correct
-4. See Meetup API documentation: https://www.meetup.com/api/
-
-## Support
-
-For issues and questions:
-- Check [NOTION_SETUP.md](./NOTION_SETUP.md) for Notion setup
-- Review the code comments in `scripts/` folder
-- Check browser console for errors
+- **Colours & typography**: `css/styles.css` — see the `:root` block at
+  the top for the palette.
+- **OG image style**: edit the SVG template in `scripts/og-image.js` and
+  re-run `npm run og`.
+- **Page copy**: each HTML file is hand-written, no templating engine.
+  Keep nav + footer changes in sync across all 5 pages.
 
 ## License
 
-MIT License - feel free to use and modify for your own projects!
+MIT. Use whatever's helpful.

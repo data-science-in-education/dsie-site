@@ -6,16 +6,25 @@
   "scripts": {
     "fetch-notion": "node scripts/notion-fetch.js",
     "sync-meetup": "node scripts/meetup-sync.js",
-    "build-data": "node scripts/notion-fetch.js && echo 'Data updated successfully!'",
+    "og": "node scripts/og-image.js",
+    "build-data": "node scripts/notion-fetch.js && node scripts/og-image.js && echo 'Data + OG images updated successfully!'",
     "serve": "python3 -m http.server 8000",
     "dev": "npm run build-data && npm run serve"
   },
-  "keywords": ["data-science", "education", "notion", "meetup"],
+  "keywords": [
+    "data-science",
+    "education",
+    "notion",
+    "meetup"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@notionhq/client": "^2.2.15",
     "dotenv": "^16.4.1",
     "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }

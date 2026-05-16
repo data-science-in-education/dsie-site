@@ -1,74 +1,109 @@
-# Notion Setup Guide
+# Notion setup
 
-This guide will help you set up Notion as your CMS for the Data Science in Education website.
+The site uses a single Notion database for both upcoming and past events.
+`scripts/notion-fetch.js` reads from it and produces two JSON files the
+site loads at runtime.
 
-## Step 1: Create Notion Database
+## 1. Create the Events database
 
-### Events Database
+In Notion, create a database with these properties:
 
-Create a new database in Notion with the following properties:
+| Property            | Type      | Notes                                                                 |
+| ------------------- | --------- | --------------------------------------------------------------------- |
+| **Title**           | Title     | Talk title (also the slug source).                                    |
+| **Date**            | Date      | When the talk happens.                                                |
+| **Description**     | Text      | One-line summary used in cards.                                       |
+| **Speaker**         | Text      | "First Last" or "First Last + panel". Used on the talk page header.   |
+| **Location**        | Text      | "Online · Zoom", "The Conduit, London", etc.                          |
+| **Time**            | Text      | Display string, e.g. "18:00–19:00 BST".                               |
+| **Highlights**      | Text      | Newline-separated bullets. Optional. Rendered as "Key Takeaways".     |
+| **Registration Link** | URL     | Direct RSVP link. Falls back to the Meetup group URL.                 |
+| **YouTube URL**     | URL       | Set after the talk. Becomes the embedded recording.                   |
+| **Status**          | Select    | upcoming / past / cancelled. Optional — the fetcher uses Date too.    |
+| **Meetup ID**       | Text      | Used by `meetup-sync.js` to dedupe. Optional.                         |
+| **Blog Published**  | Checkbox  | Tick when you've written the page body. Drives `data/talks.json`.     |
+| **Published**       | Checkbox  | Master visibility switch. Anything unchecked is excluded.             |
 
-| Property Name | Type | Description |
-|--------------|------|-------------|
-| **Title** | Title | Event name |
-| **Description** | Text | Event description |
-| **Date** | Date | Event date and time |
-| **Duration** | Number | Duration in minutes |
-| **Location** | Text | Online (Zoom), etc. |
-| **Time** | Text | Time display (e.g., "2:00 PM - 5:00 PM EST") |
-| **Highlights** | Text | Bulleted list of key points |
-| **Registration Link** | URL | Link to registration page (for upcoming events) |
-| **YouTube URL** | URL | Video recording link (for past events) |
-| **Status** | Select | upcoming, past, cancelled |
-| **Meetup ID** | Text | ID from Meetup.com (for sync) |
-| **Published** | Checkbox | Show on website? |
+The talk's write-up lives in the **Notion page body** for the row —
+headings, paragraphs, lists, quotes and code blocks all carry over.
 
-**Note:** Events can be either upcoming (with registration links) or past (with video recordings). The same database handles both!
+## 2. Create the integration
 
-## Step 2: Create Notion Integration
+1. Go to https://www.notion.so/my-integrations.
+2. Click **New integration**, name it (e.g. "DSE Website"), select the
+   workspace, **Submit**.
+3. Copy the **Internal Integration Token**.
 
-1. Go to https://www.notion.so/my-integrations
-2. Click "+ New integration"
-3. Name it "DSIE Website"
-4. Select the workspace where your databases are
-5. Click "Submit"
-6. Copy the "Internal Integration Token" - you'll need this!
+## 3. Share the database with the integration
 
-## Step 3: Share Database with Integration
+1. Open the Events database as a full page.
+2. **…** menu → **Connections** → add your integration.
 
-1. Open your Events database in Notion
-2. Click the "..." menu (top right)
-3. Scroll to "Connections" or "Add connections"
-4. Select your "DSIE Website" integration
+## 4. Get the database ID
 
-## Step 4: Get Database ID
-
-1. Open your Events database as a full page
-2. Look at the URL: `https://www.notion.so/xxxxx?v=yyyyy`
-3. The `xxxxx` part (32 characters) is your database ID
-4. Copy this for your Events database
-
-## Step 5: Configure Environment Variables
-
-Create a `.env` file in the project root with:
+From the database's URL:
 
 ```
-NOTION_API_KEY=your_integration_token_here
-NOTION_EVENTS_DB_ID=your_events_database_id
-
-# For Meetup sync (optional)
-MEETUP_OAUTH_TOKEN=your_meetup_oauth_token
-MEETUP_GROUP_URLNAME=your_group_urlname
+https://www.notion.so/<workspace>/<db-id>?v=<view-id>
+                                 ^^^^^^^
 ```
 
-## Step 6: Install Dependencies
+The 32-char hex string before the `?` is what you want.
+
+## 5. Configure environment
 
 ```bash
-npm install @notionhq/client dotenv node-fetch
+cp .env.example .env
 ```
 
-## Next Steps
+Edit `.env`:
 
-- Run `node scripts/notion-fetch.js` to test fetching from Notion
-- Set up Meetup sync (see MEETUP_SYNC.md)
-- Deploy your website!
+```
+NOTION_API_KEY=secret_xxxxxxxxxxxxxxxxxxxxxxxx
+NOTION_EVENTS_DB_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Only if you also want to sync from Meetup.com (requires Meetup Pro)
+MEETUP_OAUTH_TOKEN=...
+MEETUP_GROUP_URLNAME=data-science-in-education
+```
+
+## 6. First fetch
+
+```bash
+npm install
+npm run fetch-notion
+```
+
+This writes:
+
+- `data/events.json` — `{ upcoming: [...], past: [...] }`. Used by
+  `js/upcoming-loader.js` to populate `upcoming.html`.
+- `data/talks.json` — only rows where `Blog Published` is ticked, with
+  the Notion page body rendered to HTML. Used by `js/past-loader.js` on
+  both `past.html` (listing) and `past-talk.html` (single page).
+
+Both files are gitignored; they're regenerated by `npm run build-data`
+which CI / Vercel runs on every deploy.
+
+## 7. Render OG images
+
+```bash
+npm run og
+```
+
+This refreshes `images/og/*.png` — site-wide default, per-page cards,
+and one per published talk (named `talk-<slug>.png`). Re-run after
+adding a talk so its social preview is ready when the page goes live.
+
+## Troubleshooting
+
+- **"NOTION_API_KEY is not set"** — `.env` not loaded; check the path is
+  the repo root.
+- **Talk doesn't appear after fetch** — make sure both `Published` and
+  `Blog Published` are ticked (the latter is what gates `talks.json`).
+- **Empty `posts` array but events fetched OK** — `Blog Published`
+  isn't ticked on any row, or `Speaker` is empty (the loader expects
+  it).
+- **YouTube embed missing** — `YouTube URL` not set on that row, or in
+  a format the regex doesn't match (`youtube.com/watch?v=...` or
+  `youtu.be/...`).

@@ -4,6 +4,7 @@ node_modules/
 .DS_Store
 data/events.json
 data/videos.json
+data/talks.json
 .claude
 *.lnk
 ref/

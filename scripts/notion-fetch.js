@@ -271,8 +271,8 @@ function generateVideosFromEvents(events) {
  * Generate blog posts data from events with Blog Published = true.
  * Fetches page body blocks from Notion for each post.
  */
-async function generateBlogPosts(events) {
-  console.log('Generating blog posts from events...');
+async function generateTalkPages(events) {
+  console.log('Generating past-talk pages from events...');
 
   const allEvents = [...events.upcoming, ...events.past];
   const publishedEvents = allEvents
@@ -303,10 +303,10 @@ async function generateBlogPosts(events) {
     lastUpdated: new Date().toISOString()
   };
 
-  const filePath = path.join(__dirname, '../data/blogs.json');
+  const filePath = path.join(__dirname, '../data/talks.json');
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 
-  console.log(`✓ Generated ${posts.length} blog posts`);
+  console.log(`✓ Generated ${posts.length} past-talk pages`);
   return data;
 }
 
@@ -327,7 +327,7 @@ async function main() {
 
     const eventsData = await fetchEvents();
     generateVideosFromEvents(eventsData);
-    await generateBlogPosts(eventsData);
+    await generateTalkPages(eventsData);
 
     console.log('\n✓ All data fetched successfully!\n');
   } catch (error) {
@@ -341,4 +341,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { fetchEvents, generateVideosFromEvents, generateBlogPosts };
+module.exports = { fetchEvents, generateVideosFromEvents, generateTalkPages };
