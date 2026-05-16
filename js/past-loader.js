@@ -68,7 +68,7 @@ async function loadBlogListing() {
 }
 
 function buildFeaturedCard(post, date) {
-  const href    = 'blog-post.html?id=' + encodeURIComponent(post.slug);
+  const href    = 'past-talk.html?id=' + encodeURIComponent(post.slug);
   const title   = escapeHtml(post.title);
   const author  = escapeHtml(post.speaker || '');
   const snippet = post.description ? escapeHtml(post.description) : '';
@@ -102,7 +102,7 @@ function buildFeaturedCard(post, date) {
 }
 
 function buildBlogCard(post, index) {
-  const href    = 'blog-post.html?id=' + encodeURIComponent(post.slug);
+  const href    = 'past-talk.html?id=' + encodeURIComponent(post.slug);
   const tone    = TONES[index % TONES.length];
   const title   = escapeHtml(post.title);
   const author  = escapeHtml(post.speaker || '');

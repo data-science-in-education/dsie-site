@@ -38,8 +38,8 @@
       </button>
       <div class="dse-nav-links">
         <a class="dse-nav-link" href="index.html">Home</a>
-        <a class="dse-nav-link" href="events.html">Upcoming</a>
-        <a class="dse-nav-link active" href="blog.html">Past</a>
+        <a class="dse-nav-link" href="upcoming.html">Upcoming</a>
+        <a class="dse-nav-link active" href="past.html">Past</a>
         <a class="dse-nav-link" href="about.html">About</a>
         <a class="dse-btn white dse-nav-cta" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Join the meetup <span class="arr">→</span></a>
       </div>
@@ -63,30 +63,16 @@
 
 
 <!-- ================================================================
-     FEATURED POST (populated by blog-loader.js)
+     FEATURED POST (populated by past-loader.js)
      ================================================================ -->
 <section class="dse-section tight" style="padding-top:0" id="featured-section">
-  <!-- blog-loader.js fills #blog-featured when posts are available -->
+  <!-- past-loader.js fills #blog-featured when posts are available -->
   <div id="blog-featured"></div>
 </section>
 
 
 <!-- ================================================================
-     TAG BAR
-     ================================================================ -->
-<section id="blog-tag-bar" class="dse-section tight" style="padding-top:24px;padding-bottom:24px;border-top:1.5px solid var(--dse-line)">
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="filter-pill blog-tag-pill active" data-tag="All">All</button>
-    <button class="filter-pill blog-tag-pill" data-tag="Methods">Methods</button>
-    <button class="filter-pill blog-tag-pill" data-tag="Community">Community</button>
-    <button class="filter-pill blog-tag-pill" data-tag="Resources">Resources</button>
-    <button class="filter-pill blog-tag-pill" data-tag="Talks">Talks</button>
-  </div>
-</section>
-
-
-<!-- ================================================================
-     BLOG GRID (populated by blog-loader.js)
+     BLOG GRID (populated by past-loader.js)
      ================================================================ -->
 <section class="dse-section">
   <div id="blog-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;row-gap:48px" class="events-grid"></div>
@@ -124,7 +110,7 @@
     <div>
       <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="32" style="display:block">
       <p style="margin-top:20px;max-width:380px;color:rgba(255,255,255,.75);font-size:16px;line-height:1.5">
-        A London-based meetup for data scientists, researchers and engineers working at the intersection of data and education.
+        A meetup at the intersection of data and education. Mostly online, occasionally in London.
       </p>
       <div style="margin-top:24px">
         <a class="dse-btn white" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">RSVP on Meetup</a>
@@ -133,8 +119,8 @@
     <div>
       <h4>Community</h4>
       <ul>
-        <li><a href="events.html">Upcoming</a></li>
-        <li><a href="blog.html">Past</a></li>
+        <li><a href="upcoming.html">Upcoming</a></li>
+        <li><a href="past.html">Past</a></li>
         <li><a href="about.html">About</a></li>
       </ul>
     </div>
@@ -162,6 +148,6 @@
 </footer>
 
 <script src="js/main.js"></script>
-<script src="js/blog-loader.js"></script>
+<script src="js/past-loader.js"></script>
 </body>
 </html>
