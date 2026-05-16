@@ -9,9 +9,19 @@ document.addEventListener('DOMContentLoaded', function () {
 const TONES = ['blue', 'pink', 'sky', 'navy'];
 
 async function fetchBlogs() {
-  const res = await fetch('data/blogs.json');
+  let res;
+  try {
+    res = await fetch('data/blogs.json');
+  } catch {
+    return { posts: [] };
+  }
+  if (res.status === 404) return { posts: [] };
   if (!res.ok) throw new Error('Could not load blog data');
-  return res.json();
+  try {
+    return await res.json();
+  } catch {
+    return { posts: [] };
+  }
 }
 
 // ----------------------------------------------------------------
@@ -31,6 +41,8 @@ async function loadBlogListing() {
       if (featuredEl) featuredEl.style.display = 'none';
       const section = document.getElementById('featured-section');
       if (section) section.style.display = 'none';
+      const tagBar = document.getElementById('blog-tag-bar');
+      if (tagBar) tagBar.style.display = 'none';
       return;
     }
 
