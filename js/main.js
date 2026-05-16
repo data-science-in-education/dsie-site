@@ -1,148 +1,100 @@
-// Mobile Menu Toggle
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
+document.addEventListener('DOMContentLoaded', function () {
 
-    if (hamburger) {
-        hamburger.addEventListener('click', function() {
-            navMenu.classList.toggle('active');
+  // ---- Mobile nav toggle ----
+  const hamburger = document.querySelector('.dse-nav-hamburger');
+  const navLinks  = document.querySelector('.dse-nav-links');
 
-            // Animate hamburger icon
-            this.classList.toggle('active');
-        });
-
-        // Close menu when clicking on a link
-        document.querySelectorAll('.nav-menu a').forEach(link => {
-            link.addEventListener('click', function() {
-                navMenu.classList.remove('active');
-                hamburger.classList.remove('active');
-            });
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const isClickInsideNav = navMenu.contains(event.target);
-            const isClickOnHamburger = hamburger.contains(event.target);
-
-            if (!isClickInsideNav && !isClickOnHamburger && navMenu.classList.contains('active')) {
-                navMenu.classList.remove('active');
-                hamburger.classList.remove('active');
-            }
-        });
-    }
-
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            const href = this.getAttribute('href');
-            if (href !== '#') {
-                e.preventDefault();
-                const target = document.querySelector(href);
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            }
-        });
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', function () {
+      const open = navLinks.classList.toggle('open');
+      hamburger.classList.toggle('open', open);
+      hamburger.setAttribute('aria-expanded', String(open));
     });
-
-    // Add scroll effect to navbar
-    let lastScroll = 0;
-    const navbar = document.querySelector('.navbar');
-
-    window.addEventListener('scroll', function() {
-        const currentScroll = window.pageYOffset;
-
-        if (currentScroll > 100) {
-            navbar.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-        } else {
-            navbar.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-        }
-
-        lastScroll = currentScroll;
+    // Close when clicking a link
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
     });
-
-    // Intersection Observer for fade-in animations
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    // Observe all cards for animation
-    document.querySelectorAll('.video-card, .event-card, .event-card-detailed, .blog-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(card);
+    // Close when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+        navLinks.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      }
     });
+  }
 
-    // Form validation for registration buttons (placeholder functionality)
-    document.querySelectorAll('.btn-primary').forEach(button => {
-        if (button.textContent.includes('Register')) {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                alert('Registration functionality will be implemented here. This will redirect to your registration platform (e.g., Eventbrite, Google Forms, etc.)');
-            });
-        }
+  // ---- Newsletter forms ----
+  document.querySelectorAll('.dse-newsletter-form').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const emailInput = form.querySelector('.dse-input');
+      const email = emailInput ? emailInput.value.trim() : '';
+      if (!email || !email.includes('@')) return;
+
+      const onBlue = form.classList.contains('on-blue');
+      const div = document.createElement('div');
+      div.className = 'dse-success' + (onBlue ? ' on-blue' : '');
+
+      const check = document.createTextNode('✓ You’re in. Check ');
+      const bold  = document.createElement('b');
+      bold.textContent = email;
+      const rest  = document.createTextNode(' for confirmation.');
+      div.appendChild(check);
+      div.appendChild(bold);
+      div.appendChild(rest);
+
+      form.replaceWith(div);
     });
+  });
 
-    // Video card click handling
-    const videoCards = document.querySelectorAll('.video-card');
-    videoCards.forEach(card => {
-        card.addEventListener('click', function() {
-            // This is where you could add modal functionality or redirect to video page
-            console.log('Video card clicked');
-        });
+  // ---- Events filter pills ----
+  const filterPills = document.querySelectorAll('.events-filter-pill');
+  const eventCards  = document.querySelectorAll('.events-grid [data-tags]');
+  const countEl     = document.getElementById('events-count');
+  const emptyEl     = document.getElementById('events-empty');
+  const totalEl     = document.getElementById('events-total');
+
+  if (totalEl) totalEl.textContent = eventCards.length;
+
+  filterPills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      filterPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+
+      const filter = pill.dataset.filter;
+      let visible = 0;
+
+      eventCards.forEach(function (card) {
+        const tags = card.dataset.tags ? card.dataset.tags.split(',') : [];
+        const show = filter === 'all' || tags.includes(filter);
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      if (countEl) countEl.textContent = visible;
+      if (emptyEl)  emptyEl.style.display = visible === 0 ? '' : 'none';
     });
+  });
 
-    // Add hover effect to placeholder videos
-    document.querySelectorAll('.placeholder-video').forEach(placeholder => {
-        placeholder.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.05)';
-            this.style.transition = 'transform 0.3s ease';
-        });
+  // ---- Blog tag filter pills ----
+  // Query cards at click time (not DOMContentLoaded) since they're loaded async
+  const blogTagPills = document.querySelectorAll('.blog-tag-pill');
 
-        placeholder.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-        });
+  blogTagPills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      blogTagPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const tag = pill.dataset.tag;
+      document.querySelectorAll('#blog-grid .dse-blog-card').forEach(function (card) {
+        const cat = card.dataset.category || '';
+        card.style.display = (tag === 'All' || cat === tag) ? '' : 'none';
+      });
     });
+  });
+
 });
-
-// Add CSS animation keyframes dynamically
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .hamburger.active span:nth-child(1) {
-        transform: rotate(45deg) translate(5px, 5px);
-    }
-
-    .hamburger.active span:nth-child(2) {
-        opacity: 0;
-    }
-
-    .hamburger.active span:nth-child(3) {
-        transform: rotate(-45deg) translate(7px, -6px);
-    }
-`;
-document.head.appendChild(style);

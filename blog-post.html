@@ -1,59 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Talk write-up — Data Science in Education">
-    <title>Blog Post — Data Science in Education</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Talk write-up — Data Science in Education">
+  <title>Blog Post — Data Science in Education</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <a href="index.html" class="nav-brand">
-                <img src="images/logos/DSE-badge.svg" alt="Data Science in Education">
-            </a>
-            <button class="hamburger" aria-label="Open menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <ul class="nav-menu">
-                <li><a href="events.html">Events</a></li>
-                <li><a href="videos.html">Videos</a></li>
-                <li><a href="blog.html">Blog</a></li>
-                <li><a href="https://www.meetup.com/data-science-in-education/" class="btn btn-primary nav-cta" target="_blank" rel="noopener">Join Us on Meetup</a></li>
-            </ul>
-        </div>
+
+<!-- ================================================================
+     PATTERN HERO  (title filled by blog-loader.js)
+     ================================================================ -->
+<section class="dse-pattern" style="color:#fff;isolation:isolate">
+  <svg class="dse-pattern-svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="1101" cy="587" rx="538" ry="537" fill="#fff" opacity="0.1"/>
+    <ellipse cx="-297" cy="200" rx="575" ry="575" fill="#fff" opacity="0.1"/>
+    <ellipse cx="240"  cy="507" rx="538" ry="537" fill="#fff" opacity="0.1"/>
+    <circle cx="1074" cy="335" r="234" fill="none" stroke="#89C5FD" stroke-width="15" opacity="0.9"/>
+    <circle cx="296"  cy="363" r="207" fill="#4328EE"/>
+    <circle cx="891"  cy="54"  r="10"  fill="#F9ABB9"/>
+    <g transform="translate(-110,50)">
+      <path d="M108 116 L 217 14 L 360 56 L 395 200 L 286 302 L 143 260 Z" fill="rgba(249,171,185,0.08)" stroke="#F9ABB9" stroke-width="3" opacity="0.9"/>
+    </g>
+  </svg>
+
+  <div style="position:relative;z-index:3">
+    <nav class="dse-nav transparent">
+      <a class="dse-nav-logo" href="index.html">
+        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="26">
+      </a>
+      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="dse-nav-links">
+        <a class="dse-nav-link" href="index.html">Home</a>
+        <a class="dse-nav-link" href="events.html">Events</a>
+        <a class="dse-nav-link" href="index.html#videos">Videos</a>
+        <a class="dse-nav-link active" href="blog.html">Blog</a>
+        <a class="dse-nav-link" href="about.html">About</a>
+        <a class="dse-btn white dse-nav-cta" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Join the meetup <span class="arr">→</span></a>
+      </div>
     </nav>
+  </div>
 
-    <section class="page-header">
-        <div class="container">
-            <h1 id="post-title">Loading&hellip;</h1>
-            <p id="post-meta"></p>
-        </div>
-    </section>
+  <div style="position:relative;z-index:2;padding:56px 56px 80px">
+    <div class="eyebrow" style="color:rgba(255,255,255,.85)">Blog · Field notes</div>
+    <h1 id="post-title" class="display-md" style="margin-top:16px;color:#fff;max-width:960px">Loading…</h1>
+    <p id="post-meta" class="meta" style="margin-top:20px;color:rgba(255,255,255,.75);font-size:15px"></p>
+  </div>
+</section>
 
-    <section class="blog-post-section">
-        <div class="container">
-            <a href="blog.html" class="blog-back-link">&larr; Back to Blog</a>
-            <div id="blog-post-content" class="blog-post-body"></div>
-        </div>
-    </section>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-links">
-                <a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noopener">Meetup</a>
-                <a href="https://www.linkedin.com/company/data-science-in-education" target="_blank" rel="noopener">LinkedIn</a>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Data Science in Education. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+<!-- ================================================================
+     POST BODY
+     ================================================================ -->
+<section class="dse-section">
+  <div style="max-width:800px">
+    <a href="blog.html" style="display:inline-flex;align-items:center;gap:8px;color:var(--dse-blue);font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:15px;margin-bottom:40px">
+      ← Back to Blog
+    </a>
+    <div id="blog-post-content" class="blog-post-body"></div>
+  </div>
+</section>
 
-    <script src="js/main.js"></script>
-    <script src="js/blog-loader.js"></script>
+
+<!-- ================================================================
+     FOOTER
+     ================================================================ -->
+<footer class="dse-footer">
+  <div class="dse-footer-grid">
+    <div>
+      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="32" style="display:block">
+      <p style="margin-top:20px;max-width:380px;color:rgba(255,255,255,.75);font-size:16px;line-height:1.5">
+        A London-based meetup for data scientists, researchers and engineers working at the intersection of data and education.
+      </p>
+      <div style="margin-top:24px">
+        <a class="dse-btn white" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">RSVP on Meetup</a>
+      </div>
+    </div>
+    <div>
+      <h4>Community</h4>
+      <ul>
+        <li><a href="events.html">Upcoming events</a></li>
+        <li><a href="index.html#videos">Past talks</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Find us</h4>
+      <ul>
+        <li><a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Meetup ↗</a></li>
+        <li><a href="https://www.linkedin.com/company/data-science-in-education" target="_blank" rel="noreferrer">LinkedIn ↗</a></li>
+        <li><a href="https://www.youtube.com/@datascienceineducation" target="_blank" rel="noreferrer">YouTube ↗</a></li>
+        <li><a href="mailto:hello@datascienceineducation.events">hello@…events</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Hosted by</h4>
+      <ul>
+        <li>Simon Woodhead</li>
+        <li>Bibi Groot</li>
+        <li>Digory Smith</li>
+      </ul>
+    </div>
+  </div>
+  <div class="dse-footer-bottom">
+    <span>© 2026 Data Science in Education</span>
+    <span>datascienceineducation.events</span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/blog-loader.js"></script>
 </body>
 </html>

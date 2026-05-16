@@ -1,89 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Data Science in Education - A community for educators, researchers, and data enthusiasts exploring data-driven approaches to education">
-    <title>Data Science in Education</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Data Science in Education — a monthly meetup for data scientists working in edtech. Monthly talks in London and online.">
+  <title>Data Science in Education</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <a href="index.html" class="nav-brand">
-                <img src="images/logos/DSE-badge.svg" alt="Data Science in Education">
-            </a>
-            <button class="hamburger" aria-label="Open menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <ul class="nav-menu">
-                <li><a href="events.html">Events</a></li>
-                <li><a href="videos.html">Videos</a></li>
-                <li><a href="blog.html">Blog</a></li>
-                <li><a href="https://www.meetup.com/data-science-in-education/" class="btn btn-primary nav-cta" target="_blank" rel="noopener">Join Us on Meetup</a></li>
-            </ul>
-        </div>
+
+<!-- ================================================================
+     HERO — full-bleed blue pattern
+     ================================================================ -->
+<section class="dse-pattern" style="min-height:720px;color:#fff;isolation:isolate">
+  <svg class="dse-pattern-svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="1101" cy="587" rx="538" ry="537" fill="#fff" opacity="0.1"/>
+    <ellipse cx="-297" cy="200" rx="575" ry="575" fill="#fff" opacity="0.1"/>
+    <ellipse cx="240"  cy="507" rx="538" ry="537" fill="#fff" opacity="0.1"/>
+    <circle cx="1074" cy="335" r="234" fill="none" stroke="#89C5FD" stroke-width="15" opacity="0.9"/>
+    <circle cx="296"  cy="363" r="207" fill="#4328EE"/>
+    <circle cx="891"  cy="54"  r="10"  fill="#F9ABB9"/>
+    <g transform="translate(-110,50)">
+      <path d="M108 116 L 217 14 L 360 56 L 395 200 L 286 302 L 143 260 Z" fill="rgba(249,171,185,0.08)" stroke="#F9ABB9" stroke-width="3" opacity="0.9"/>
+    </g>
+  </svg>
+
+  <div style="position:relative;z-index:3">
+    <nav class="dse-nav transparent">
+      <a class="dse-nav-logo" href="index.html">
+        <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="26">
+      </a>
+      <button class="dse-nav-hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="dse-nav-links">
+        <a class="dse-nav-link active" href="index.html">Home</a>
+        <a class="dse-nav-link" href="events.html">Events</a>
+        <a class="dse-nav-link" href="index.html#videos">Videos</a>
+        <a class="dse-nav-link" href="blog.html">Blog</a>
+        <a class="dse-nav-link" href="about.html">About</a>
+        <a class="dse-btn white dse-nav-cta" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Join the meetup <span class="arr">→</span></a>
+      </div>
     </nav>
+  </div>
 
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-buttons">
-                    <a href="https://www.meetup.com/data-science-in-education/" class="btn btn-primary" target="_blank" rel="noopener">Join Our Meetup Group</a>
-                </div>
-            </div>
+  <div style="position:relative;z-index:2;padding:72px 56px 88px">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:40px">
+      <img src="images/logos/DSE-badge.svg" alt="" width="50" height="50" style="filter:brightness(0) invert(1)">
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:.18em;text-transform:uppercase;opacity:.9">
+        Data Science in Education · Meetup
+      </span>
+    </div>
+
+    <h1 class="display-xl" style="color:#fff;max-width:1100px">
+      The methods<br>that don't<br>fit in a paper.
+    </h1>
+
+    <p class="lead" style="color:rgba(255,255,255,.85);max-width:620px;margin-top:32px">
+      Monthly talks in London and online. Researchers and practitioners
+      comparing notes on the work of teaching machines to teach.
+    </p>
+
+    <div style="display:flex;gap:12px;margin-top:36px;flex-wrap:wrap">
+      <a class="dse-btn white" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">
+        Join us on Meetup <span class="arr">→</span>
+      </a>
+      <a class="dse-btn ghost-white" href="events.html">Upcoming events</a>
+    </div>
+
+    <!-- Next event ribbon -->
+    <div class="next-event-ribbon">
+      <span class="dse-chip live" style="flex-shrink:0">Next up</span>
+      <div style="flex:1;font-size:16px;color:#fff;line-height:1.4">
+        <b style="font-family:'Space Grotesk',sans-serif;font-weight:700">Causal inference in edtech: what works, for whom?</b>
+        <div style="opacity:.85;margin-top:2px">Wed 4 Jun 2026 · 18:30 BST · The Conduit, London</div>
+      </div>
+      <a class="dse-btn ghost-white" style="padding:8px 16px;font-size:14px" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">RSVP</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     PARTNERS / SPEAKERS BAR
+     ================================================================ -->
+<section class="dse-section tight" style="padding-top:36px;padding-bottom:36px;border-bottom:1.5px solid var(--dse-line)">
+  <div class="partners-bar">
+    <span class="eyebrow" style="color:var(--dse-muted)">Speakers &amp; partners</span>
+    <span class="partner-name">Eedi</span>
+    <span class="partner-name">UCL Knowledge Lab</span>
+    <span class="partner-name">Open University</span>
+    <span class="partner-name">Imperial Edtech Lab</span>
+    <span class="partner-name">AlphaPlus</span>
+    <span class="partner-name">Pearson Research</span>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     UPCOMING EVENTS
+     ================================================================ -->
+<section class="dse-section">
+  <div class="events-2col" style="display:grid;grid-template-columns:1fr 1.6fr;gap:56px;align-items:start">
+    <div class="events-sticky" style="position:sticky;top:32px">
+      <div class="eyebrow" style="color:var(--dse-blue)">Upcoming</div>
+      <h2 class="display-md" style="margin-top:12px">Three months,<br>three talks.</h2>
+      <p class="body" style="margin-top:20px;color:var(--dse-muted);max-width:320px">
+        Most evenings start at 6:30pm with food and drinks. Talks run 30–40 minutes, plus questions until the venue throws us out.
+      </p>
+      <a class="dse-btn primary" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer" style="margin-top:24px">
+        See all on Meetup ↗
+      </a>
+    </div>
+
+    <div>
+      <div class="event-list-row">
+        <div>
+          <div class="event-list-day">4</div>
+          <div class="event-list-monthyear">Jun 2026</div>
         </div>
-    </section>
-
-    <section class="about">
-        <div class="container">
-            <h2>Our Mission</h2>
-            <p>We're dedicated to bridging the gap between data science and education. Our community brings together educators, researchers, and data enthusiasts to share knowledge, explore new approaches, and harness the power of data in educational settings.</p>
+        <div>
+          <div class="event-list-title">Causal inference in edtech: what works, for whom?</div>
+          <div class="event-list-meta">Dr. Lena Park, UCL Knowledge Lab · 18:30 BST · The Conduit, London</div>
         </div>
-    </section>
-
-    <section class="organisers">
-        <div class="container">
-            <h2>Organisers</h2>
-            <div class="organisers-grid">
-                <a href="https://www.linkedin.com/in/simon-woodhead/" class="organiser-card" target="_blank" rel="noopener">
-                    <img src="images/organisers/simon.png" alt="Simon Woodhead" class="organiser-avatar">
-                    <h3>Simon Woodhead</h3>
-                </a>
-                <a href="https://www.linkedin.com/in/bibi-groot-12757522/" class="organiser-card" target="_blank" rel="noopener">
-                    <img src="images/organisers/bibi.jpg" alt="Bibi Groot" class="organiser-avatar">
-                    <h3>Bibi Groot</h3>
-                </a>
-                <a href="https://www.linkedin.com/in/digory-smith/" class="organiser-card" target="_blank" rel="noopener">
-                    <img src="images/organisers/digory.jpg" alt="Digory Smith" class="organiser-avatar">
-                    <h3>Digory Smith</h3>
-                </a>
-            </div>
+        <div class="event-rsvp-col" style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <span class="dse-chip blue" style="white-space:nowrap">● 64 going</span>
+          <a class="dse-btn ghost" style="padding:8px 16px;font-size:14px" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">RSVP</a>
         </div>
-    </section>
+      </div>
 
-    <section class="cta-section">
-        <div class="container">
-            <h2>Join Our Community</h2>
-            <p>Connect with fellow educators and data scientists. Attend workshops, talks, and networking events.</p>
-            <a href="https://www.meetup.com/data-science-in-education/" class="btn btn-primary" target="_blank" rel="noopener">View Upcoming Events</a>
+      <div class="event-list-row">
+        <div>
+          <div class="event-list-day">8</div>
+          <div class="event-list-monthyear">Jul 2026</div>
         </div>
-    </section>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-links">
-                <a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noopener">Meetup</a>
-                <a href="https://www.linkedin.com/company/data-science-in-education" target="_blank" rel="noopener">LinkedIn</a>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Data Science in Education. All rights reserved.</p>
-            </div>
+        <div>
+          <div class="event-list-title">When LLMs mark maths — failure modes &amp; guardrails</div>
+          <div class="event-list-meta">Bibi Groot, Eedi · 18:30 BST · Online · Zoom</div>
         </div>
-    </footer>
+        <div class="event-rsvp-col" style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <span class="dse-chip blue" style="white-space:nowrap">● 218 going</span>
+          <a class="dse-btn ghost" style="padding:8px 16px;font-size:14px" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">RSVP</a>
+        </div>
+      </div>
 
-    <script src="js/main.js"></script>
+      <div class="event-list-row">
+        <div>
+          <div class="event-list-day">17</div>
+          <div class="event-list-monthyear">Sep 2026</div>
+        </div>
+        <div>
+          <div class="event-list-title">Knowledge tracing in 2026: are transformers really winning?</div>
+          <div class="event-list-meta">Digory Smith + panel, Eedi · 18:00 BST · The Conduit, London</div>
+        </div>
+        <div class="event-rsvp-col" style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <span class="dse-chip blue" style="white-space:nowrap">● 42 going</span>
+          <a class="dse-btn ghost" style="padding:8px 16px;font-size:14px" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">RSVP</a>
+        </div>
+      </div>
+
+      <div style="border-top:1.5px solid var(--dse-line)"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     PAST TALKS / VIDEOS  (dark section)
+     ================================================================ -->
+<section id="videos" class="dse-section" style="background:var(--dse-ink);color:#fff">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px">
+    <div>
+      <div class="eyebrow" style="color:var(--dse-sky)">Past talks · YouTube</div>
+      <h2 class="display-md" style="margin-top:12px;color:#fff">Re-watch the room.</h2>
+    </div>
+    <a class="dse-btn ghost-white" href="https://www.youtube.com/@datascienceineducation" target="_blank" rel="noreferrer">YouTube channel ↗</a>
+  </div>
+
+  <div class="videos-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+    <!-- Row 1 -->
+    <a href="https://www.youtube.com/@datascienceineducation" class="dse-video-card" target="_blank" rel="noreferrer">
+      <div class="dse-thumb blue">
+        <svg class="thumb-decor" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="80" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="60" cy="200" r="100" fill="currentColor" opacity="0.06"/>
+        </svg>
+        <span class="duration">42:11</span>
+        <span class="play-btn"></span>
+        <div class="thumb-eyebrow">DSE · Mar 2026</div>
+      </div>
+      <div class="dse-video-info">
+        <div class="dse-video-title">Misconception mining at scale</div>
+        <div class="meta" style="margin-top:6px">Simon Woodhead · 2.1k views</div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/@datascienceineducation" class="dse-video-card" target="_blank" rel="noreferrer">
+      <div class="dse-thumb pink">
+        <svg class="thumb-decor" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="80" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="60" cy="200" r="100" fill="currentColor" opacity="0.06"/>
+        </svg>
+        <span class="duration">38:04</span>
+        <span class="play-btn"></span>
+        <div class="thumb-eyebrow">DSE · Feb 2026</div>
+      </div>
+      <div class="dse-video-info">
+        <div class="dse-video-title">Teaching transformers to teach</div>
+        <div class="meta" style="margin-top:6px">Aman Verma · 1.6k views</div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/@datascienceineducation" class="dse-video-card" target="_blank" rel="noreferrer">
+      <div class="dse-thumb sky">
+        <svg class="thumb-decor" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="80" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="60" cy="200" r="100" fill="currentColor" opacity="0.06"/>
+        </svg>
+        <span class="duration">29:47</span>
+        <span class="play-btn"></span>
+        <div class="thumb-eyebrow">DSE · Jan 2026</div>
+      </div>
+      <div class="dse-video-info">
+        <div class="dse-video-title">Item response theory, the bits the textbooks skip</div>
+        <div class="meta" style="margin-top:6px">Dr. Rachel Khoo · 3.4k views</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="videos-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:24px">
+    <!-- Row 2 -->
+    <a href="https://www.youtube.com/@datascienceineducation" class="dse-video-card" target="_blank" rel="noreferrer">
+      <div class="dse-thumb navy">
+        <svg class="thumb-decor" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="80" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="60" cy="200" r="100" fill="currentColor" opacity="0.06"/>
+        </svg>
+        <span class="duration">47:22</span>
+        <span class="play-btn"></span>
+        <div class="thumb-eyebrow">DSE · Dec 2025</div>
+      </div>
+      <div class="dse-video-info">
+        <div class="dse-video-title">Adaptive practice: a five-year retrospective</div>
+        <div class="meta" style="margin-top:6px">Digory Smith · 2.9k views</div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/@datascienceineducation" class="dse-video-card" target="_blank" rel="noreferrer">
+      <div class="dse-thumb blue">
+        <svg class="thumb-decor" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="80" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="60" cy="200" r="100" fill="currentColor" opacity="0.06"/>
+        </svg>
+        <span class="duration">33:18</span>
+        <span class="play-btn"></span>
+        <div class="thumb-eyebrow">DSE · Nov 2025</div>
+      </div>
+      <div class="dse-video-info">
+        <div class="dse-video-title">Why your A/B tests on students are lying to you</div>
+        <div class="meta" style="margin-top:6px">Bibi Groot · 4.1k views</div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/@datascienceineducation" class="dse-video-card" target="_blank" rel="noreferrer">
+      <div class="dse-thumb pink">
+        <svg class="thumb-decor" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="80" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="60" cy="200" r="100" fill="currentColor" opacity="0.06"/>
+        </svg>
+        <span class="duration">51:09</span>
+        <span class="play-btn"></span>
+        <div class="thumb-eyebrow">DSE · Oct 2025</div>
+      </div>
+      <div class="dse-video-info">
+        <div class="dse-video-title">From PISA to production: scaling psychometric models</div>
+        <div class="meta" style="margin-top:6px">Prof. Jian Wei · 1.8k views</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     BLOG TEASER
+     ================================================================ -->
+<section class="dse-section">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px">
+    <div>
+      <div class="eyebrow" style="color:var(--dse-blue)">Field notes</div>
+      <h2 class="display-md" style="margin-top:12px">From the meetup floor.</h2>
+    </div>
+    <a class="dse-btn ghost" href="blog.html">All posts <span class="arr">→</span></a>
+  </div>
+
+  <div class="blog-4col" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px">
+    <a href="blog.html" class="dse-blog-card">
+      <div class="dse-blog-panel blue">
+        <svg class="blog-panel-decor" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="120" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="80" cy="250" r="100" fill="currentColor" opacity="0.07"/>
+          <circle cx="200" cy="40" r="6" fill="currentColor" opacity="0.5"/>
+        </svg>
+        <div class="blog-panel-content">
+          <span class="dse-chip" style="background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3)">Community</span>
+          <div class="blog-panel-title">What we learned hosting twelve meetups in a year</div>
+        </div>
+      </div>
+      <div class="blog-card-meta"><b>Bibi Groot</b><span>· Apr 14, 2026</span><span>· 6 min read</span></div>
+    </a>
+
+    <a href="blog.html" class="dse-blog-card">
+      <div class="dse-blog-panel pink">
+        <svg class="blog-panel-decor" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="120" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="80" cy="250" r="100" fill="currentColor" opacity="0.07"/>
+          <circle cx="200" cy="40" r="6" fill="currentColor" opacity="0.5"/>
+        </svg>
+        <div class="blog-panel-content">
+          <span class="dse-chip" style="background:rgba(255,255,255,.18);color:var(--dse-ink);border-color:rgba(0,0,0,.12)">Talks</span>
+          <div class="blog-panel-title">Notes from the LLM marking workshop</div>
+        </div>
+      </div>
+      <div class="blog-card-meta"><b>Simon Woodhead</b><span>· Mar 28, 2026</span><span>· 9 min read</span></div>
+    </a>
+
+    <a href="blog.html" class="dse-blog-card">
+      <div class="dse-blog-panel sky">
+        <svg class="blog-panel-decor" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="120" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="80" cy="250" r="100" fill="currentColor" opacity="0.07"/>
+          <circle cx="200" cy="40" r="6" fill="currentColor" opacity="0.5"/>
+        </svg>
+        <div class="blog-panel-content">
+          <span class="dse-chip" style="background:rgba(255,255,255,.18);color:var(--dse-ink);border-color:rgba(0,0,0,.12)">Methods</span>
+          <div class="blog-panel-title">A practitioner's cheat sheet to knowledge tracing</div>
+        </div>
+      </div>
+      <div class="blog-card-meta"><b>Digory Smith</b><span>· Mar 02, 2026</span><span>· 12 min read</span></div>
+    </a>
+
+    <a href="blog.html" class="dse-blog-card">
+      <div class="dse-blog-panel navy">
+        <svg class="blog-panel-decor" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60" r="120" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="80" cy="250" r="100" fill="currentColor" opacity="0.07"/>
+          <circle cx="200" cy="40" r="6" fill="currentColor" opacity="0.5"/>
+        </svg>
+        <div class="blog-panel-content">
+          <span class="dse-chip" style="background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3)">Resources</span>
+          <div class="blog-panel-title">Eight datasets every edtech data scientist should know</div>
+        </div>
+      </div>
+      <div class="blog-card-meta"><b>Bibi Groot</b><span>· Feb 18, 2026</span><span>· 5 min read</span></div>
+    </a>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     NEWSLETTER CTA
+     ================================================================ -->
+<section class="dse-section" style="padding-top:56px;padding-bottom:96px">
+  <div class="dse-newsletter-card">
+    <div>
+      <img src="images/logos/DSE-badge.svg" alt="" width="48" height="48" style="display:block">
+      <h2 class="display-sm" style="margin-top:20px">One email per month.<br>Mostly links and dates.</h2>
+    </div>
+    <form class="dse-newsletter-form dse-form" novalidate>
+      <div class="dse-form-row">
+        <input type="email" class="dse-input" placeholder="your@email.com" required>
+        <button type="submit" class="dse-btn primary">Subscribe <span class="arr">→</span></button>
+      </div>
+      <p class="dse-form-hint">Monthly digest. New talks, slides, links. No spam.</p>
+    </form>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     FOOTER
+     ================================================================ -->
+<footer class="dse-footer">
+  <div class="dse-footer-grid">
+    <div>
+      <img src="images/logos/DSE-logo-white.svg" alt="Data Science in Education" height="32" style="display:block">
+      <p style="margin-top:20px;max-width:380px;color:rgba(255,255,255,.75);font-size:16px;line-height:1.5">
+        A London-based meetup for data scientists, researchers and engineers working at the intersection of data and education.
+      </p>
+      <div style="margin-top:24px">
+        <a class="dse-btn white" href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">RSVP on Meetup</a>
+      </div>
+    </div>
+    <div>
+      <h4>Community</h4>
+      <ul>
+        <li><a href="events.html">Upcoming events</a></li>
+        <li><a href="index.html#videos">Past talks</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Find us</h4>
+      <ul>
+        <li><a href="https://www.meetup.com/data-science-in-education/" target="_blank" rel="noreferrer">Meetup ↗</a></li>
+        <li><a href="https://www.linkedin.com/company/data-science-in-education" target="_blank" rel="noreferrer">LinkedIn ↗</a></li>
+        <li><a href="https://www.youtube.com/@datascienceineducation" target="_blank" rel="noreferrer">YouTube ↗</a></li>
+        <li><a href="mailto:hello@datascienceineducation.events">hello@…events</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Hosted by</h4>
+      <ul>
+        <li>Simon Woodhead</li>
+        <li>Bibi Groot</li>
+        <li>Digory Smith</li>
+      </ul>
+    </div>
+  </div>
+  <div class="dse-footer-bottom">
+    <span>© 2026 Data Science in Education</span>
+    <span>datascienceineducation.events</span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
 </body>
 </html>

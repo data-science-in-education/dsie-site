@@ -6,120 +6,178 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
+const TONES = ['blue', 'pink', 'sky', 'navy'];
+
 async function fetchBlogs() {
   const res = await fetch('data/blogs.json');
   if (!res.ok) throw new Error('Could not load blog data');
   return res.json();
 }
 
+// ----------------------------------------------------------------
+// Blog listing page
+// ----------------------------------------------------------------
 async function loadBlogListing() {
-  const grid = document.getElementById('blog-grid');
-  const emptyState = document.getElementById('blog-empty');
+  const grid      = document.getElementById('blog-grid');
+  const emptyEl   = document.getElementById('blog-empty');
+  const featuredEl = document.getElementById('blog-featured');
 
   try {
-    const data = await fetchBlogs();
+    const data  = await fetchBlogs();
     const posts = data.posts || [];
 
     if (posts.length === 0) {
-      if (emptyState) emptyState.style.display = 'block';
+      if (emptyEl)    emptyEl.style.display = 'block';
+      if (featuredEl) featuredEl.style.display = 'none';
+      const section = document.getElementById('featured-section');
+      if (section) section.style.display = 'none';
       return;
     }
 
-    grid.innerHTML = posts.map(post => `
-      <article class="blog-card fade-in">
-        <div class="blog-card-body">
-          <div class="blog-meta">
-            <span class="blog-date">${post.day} ${post.month} ${post.year}</span>
-            ${post.speaker ? `<span class="blog-speaker">${escapeHtml(post.speaker)}</span>` : ''}
-          </div>
-          <h3>${escapeHtml(post.title)}</h3>
-          ${post.description ? `<p>${escapeHtml(post.description)}</p>` : ''}
-        </div>
-        <div class="blog-card-footer">
-          <a href="blog-post.html?id=${encodeURIComponent(post.slug)}" class="btn btn-outline blog-read-more">Read post &rarr;</a>
-        </div>
-      </article>
-    `).join('');
+    // Featured post (first post)
+    if (featuredEl && posts.length > 0) {
+      const f = posts[0];
+      const date = [f.day, f.month, f.year].filter(Boolean).join(' ');
+      featuredEl.innerHTML = buildFeaturedCard(f, date);
+    }
 
-    // Trigger fade-in animations
-    requestAnimationFrame(() => {
-      document.querySelectorAll('.blog-card').forEach((card, i) => {
-        setTimeout(() => card.classList.add('visible'), i * 80);
-      });
-    });
+    // Remaining posts → grid
+    const rest = posts.slice(1);
+    if (rest.length === 0) {
+      if (emptyEl) emptyEl.style.display = 'block';
+    } else {
+      grid.innerHTML = rest.map((post, i) => buildBlogCard(post, i + 1)).join('');
+    }
+
   } catch (err) {
     console.error('Blog load error:', err);
-    grid.innerHTML = '<p class="blog-error">Could not load blog posts. Please try again later.</p>';
+    if (grid) grid.innerHTML = '<p class="blog-error">Could not load blog posts. Please try again later.</p>';
   }
 }
 
+function buildFeaturedCard(post, date) {
+  const href    = 'blog-post.html?id=' + encodeURIComponent(post.slug);
+  const title   = escapeHtml(post.title);
+  const author  = escapeHtml(post.speaker || '');
+  const snippet = post.description ? escapeHtml(post.description) : '';
+  const initials = (post.speaker || '')
+    .split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
+
+  return `
+    <a href="${href}" class="dse-blog-featured">
+      <div class="blog-featured-panel">
+        <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.5;pointer-events:none" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="340" cy="80"  r="160" fill="none" stroke="#89C5FD" stroke-width="4" opacity="0.7"/>
+          <circle cx="120" cy="240" r="90"  fill="#4328EE"/>
+          <circle cx="200" cy="40"  r="8"   fill="#F9ABB9"/>
+        </svg>
+        <div style="position:relative;z-index:2">
+          <span class="dse-chip" style="background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3)">Featured</span>
+        </div>
+        <div style="position:relative;z-index:2">
+          <h2 class="blog-featured-title">${title}</h2>
+        </div>
+      </div>
+      <div class="blog-featured-body">
+        ${snippet ? `<p class="body" style="font-size:18px;color:var(--dse-ink)">${snippet}</p>` : ''}
+        <div style="display:flex;align-items:center;gap:12px;margin-top:auto">
+          <div style="width:40px;height:40px;border-radius:999px;background:var(--dse-pink);color:var(--dse-ink);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;flex-shrink:0">${initials}</div>
+          <div class="meta"><b style="color:var(--dse-ink)">${author}</b>${date ? ' · ' + date : ''}</div>
+        </div>
+        <span class="dse-btn primary" style="align-self:flex-start;margin-top:16px;display:inline-flex">Read the post <span class="arr">→</span></span>
+      </div>
+    </a>`;
+}
+
+function buildBlogCard(post, index) {
+  const href    = 'blog-post.html?id=' + encodeURIComponent(post.slug);
+  const tone    = TONES[index % TONES.length];
+  const title   = escapeHtml(post.title);
+  const author  = escapeHtml(post.speaker || '');
+  const date    = [post.day, post.month, post.year].filter(Boolean).join(' ');
+  const chipStyle = (tone === 'blue' || tone === 'navy')
+    ? 'background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3)'
+    : 'background:rgba(255,255,255,.18);color:var(--dse-ink);border-color:rgba(0,0,0,.12)';
+
+  return `
+    <a href="${href}" class="dse-blog-card">
+      <div class="dse-blog-panel ${tone}">
+        <svg class="blog-panel-decor" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle cx="320" cy="60"  r="120" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
+          <circle cx="80"  cy="250" r="100" fill="currentColor" opacity="0.07"/>
+          <circle cx="200" cy="40"  r="6"   fill="currentColor" opacity="0.5"/>
+        </svg>
+        <div class="blog-panel-content">
+          <span class="dse-chip" style="${chipStyle}">Post</span>
+          <div class="blog-panel-title">${title}</div>
+        </div>
+      </div>
+      <div class="blog-card-meta">
+        ${author ? `<b>${author}</b>` : ''}
+        ${date ? `<span>· ${date}</span>` : ''}
+      </div>
+    </a>`;
+}
+
+// ----------------------------------------------------------------
+// Single blog post page
+// ----------------------------------------------------------------
 async function loadBlogPost() {
   const params = new URLSearchParams(window.location.search);
-  const slug = params.get('id');
+  const slug   = params.get('id');
 
-  if (!slug) {
-    showPostError('No post specified.');
-    return;
-  }
+  if (!slug) { showPostError('No post specified.'); return; }
 
   try {
     const data = await fetchBlogs();
     const post = (data.posts || []).find(p => p.slug === slug);
 
-    if (!post) {
-      showPostError('Post not found.');
-      return;
-    }
+    if (!post) { showPostError('Post not found.'); return; }
 
-    // Update page title
-    document.title = `${post.title} — Data Science in Education`;
+    document.title = post.title + ' — Data Science in Education';
 
-    // Fill header fields
     const titleEl = document.getElementById('post-title');
-    const metaEl = document.getElementById('post-meta');
+    const metaEl  = document.getElementById('post-meta');
     if (titleEl) titleEl.textContent = post.title;
     if (metaEl) {
-      const parts = [`${post.day} ${post.month} ${post.year}`];
+      const parts = [];
+      if (post.day || post.month || post.year)
+        parts.push([post.day, post.month, post.year].filter(Boolean).join(' '));
       if (post.speaker) parts.push(escapeHtml(post.speaker));
-      metaEl.innerHTML = parts.join(' &bull; ');
+      metaEl.innerHTML = parts.join(' · ');
     }
 
     const content = document.getElementById('blog-post-content');
+    const chunks  = [];
 
-    // YouTube embed
-    let videoHtml = '';
     if (post.youtubeId) {
-      videoHtml = `
+      chunks.push(`
         <div class="video-embed-wrapper">
           <div class="video-embed">
             <iframe
               src="https://www.youtube.com/embed/${escapeHtml(post.youtubeId)}"
               title="${escapeHtml(post.title)}"
-              frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen>
             </iframe>
           </div>
-        </div>`;
+        </div>`);
     }
 
-    // Blog content from Notion page body
-    let blogHtml = '';
     if (post.contentHtml) {
-      blogHtml = `<div class="blog-content">${post.contentHtml}</div>`;
+      chunks.push(`<div class="blog-content">${post.contentHtml}</div>`);
     }
 
-    // Highlights
-    let highlightsHtml = '';
     if (post.highlights && post.highlights.length > 0) {
-      highlightsHtml = `
+      chunks.push(`
         <div class="event-highlights">
           <h4>Key Takeaways</h4>
           <ul>${post.highlights.map(h => `<li>${escapeHtml(h)}</li>`).join('')}</ul>
-        </div>`;
+        </div>`);
     }
 
-    content.innerHTML = videoHtml + blogHtml + highlightsHtml;
+    if (content) content.innerHTML = chunks.join('');
+
   } catch (err) {
     console.error('Blog post load error:', err);
     showPostError('Could not load this post.');
@@ -128,7 +186,12 @@ async function loadBlogPost() {
 
 function showPostError(message) {
   const content = document.getElementById('blog-post-content');
-  if (content) content.innerHTML = `<p class="blog-error">${escapeHtml(message)}</p>`;
+  if (content) {
+    const p = document.createElement('p');
+    p.className = 'blog-error';
+    p.textContent = message;
+    content.appendChild(p);
+  }
 }
 
 function escapeHtml(str) {
