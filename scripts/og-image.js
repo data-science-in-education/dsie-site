@@ -1,28 +1,31 @@
 /**
  * OG image generator
  *
- * Produces 1200x630 PNGs that platforms (LinkedIn, Twitter/X, Slack, etc.)
- * use as link previews. Two outputs:
+ * Produces two families of branded PNGs:
  *
- *   - images/og/default.png         site-wide fallback
- *   - images/og/talk-<slug>.png     one per past talk in data/talks.json
- *
- * The site-wide default is referenced via <meta property="og:image"> in
- * every HTML file. Per-talk pages override that at render time (handled
- * in past-loader.js).
+ *   - OG cards (1200x630) under images/og/ — used as social link
+ *     previews on LinkedIn / Twitter / Slack. One default + one per
+ *     site page + one per past talk.
+ *   - Video cards (1920x1080) under images/video-cards/ — used as
+ *     the title still in assembled YouTube videos AND as the YouTube
+ *     thumbnail. One per past talk. If images/speakers/<slug>.png
+ *     exists, it's composited in as a circular headshot.
  *
  * Run:  npm run og   (or:  node scripts/og-image.js)
  *
  * Re-run whenever you add a new talk to data/talks.json. Idempotent.
  */
 
-const fs   = require('fs');
-const path = require('path');
+const fs    = require('fs');
+const path  = require('path');
 const sharp = require('sharp');
 
-const ROOT = path.resolve(__dirname, '..');
-const OG_DIR = path.join(ROOT, 'images', 'og');
-fs.mkdirSync(OG_DIR, { recursive: true });
+const ROOT          = path.resolve(__dirname, '..');
+const OG_DIR        = path.join(ROOT, 'images', 'og');
+const CARD_DIR      = path.join(ROOT, 'images', 'video-cards');
+const SPEAKERS_DIR  = path.join(ROOT, 'images', 'speakers');
+fs.mkdirSync(OG_DIR,   { recursive: true });
+fs.mkdirSync(CARD_DIR, { recursive: true });
 
 // ---- shared SVG template ----
 // 1200x630 with the DSE blue gradient + pattern marks. Text is wrapped by
@@ -109,6 +112,127 @@ async function render(filename, fields) {
   console.log(`  ${path.relative(ROOT, out)}`);
 }
 
+// ---- video card (1920x1080) ----
+// Used for the 3 s title still in assembled YouTube videos and as the
+// YouTube thumbnail. Layout: title (large) + description (smaller) at
+// left, optional circular headshot at right, DSE wordmark bottom-left.
+//
+// Background and logo come from real brand SVGs (images/meetup-image-plain.svg
+// and images/logos/DSE-logo-white.svg) rather than being hand-drawn here,
+// so the design tracks any future brand updates.
+
+function slugify(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+}
+
+// Find a headshot file for a speaker. Returns null if absent.
+function findHeadshot(speaker) {
+  if (!speaker) return null;
+  const slug = slugify(speaker);
+  for (const ext of ['png', 'jpg', 'jpeg', 'webp']) {
+    const p = path.join(SPEAKERS_DIR, `${slug}.${ext}`);
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+// Read an SVG file and return its inner content (everything between the
+// root <svg> tags), so it can be wrapped inside a positioned <svg> in
+// the composing template. Strips comments to keep output tidy.
+function readSvgInner(filename) {
+  const raw = fs.readFileSync(path.join(ROOT, 'images', filename), 'utf8');
+  const m = raw.match(/<svg\b[^>]*>([\s\S]*?)<\/svg>/i);
+  if (!m) throw new Error(`Could not parse ${filename}`);
+  return m[1].replace(/<!--[\s\S]*?-->/g, '').trim();
+}
+
+function videoCardSvg({ title, speaker, hasHeadshot, headshotDataUri }) {
+  // When a headshot is present, constrain text to the left half so it
+  // doesn't run into the circle. Without one, text gets a wider column.
+  const titleLines  = wrap(title, hasHeadshot ? 18 : 26);
+  const titleSize   = titleLines.length >= 4 ? 80 : titleLines.length >= 3 ? 92 : 108;
+  const titleLH     = Math.round(titleSize * 1.05);
+  const titleTop    = 220;
+  const titleHeight = titleLines.length * titleLH;
+
+  const speakerSize = 44;
+  const speakerTop  = titleTop + titleHeight + 56;
+
+  // Brand assets, inlined (vector preserved, single sharp render pass).
+  const bgInner   = readSvgInner('meetup-image-plain.svg');
+  const logoInner = readSvgInner('logos/DSE-logo-white.svg');
+
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <clipPath id="head-clip">
+      <circle cx="1560" cy="540" r="240"/>
+    </clipPath>
+  </defs>
+
+  <!-- 1. Background pattern (meetup-image-plain.svg, sliced to fill 16:9) -->
+  <svg x="0" y="0" width="1920" height="1080" viewBox="0 0 1001 564"
+       preserveAspectRatio="xMidYMid slice">
+    ${bgInner}
+  </svg>
+
+  <!-- 2. Title -->
+  <g font-family="Space Grotesk, sans-serif" font-weight="700"
+     font-size="${titleSize}" fill="#fff" letter-spacing="-2.4">
+    ${titleLines.map((line, i) =>
+      `<text x="120" y="${titleTop + i * titleLH}">${esc(line)}</text>`
+    ).join('\n    ')}
+  </g>
+
+  <!-- 3. Speaker -->
+  ${speaker ? `
+  <text x="120" y="${speakerTop}"
+        font-family="Hanken Grotesk, sans-serif" font-weight="500"
+        font-size="${speakerSize}" fill="#fff" opacity="0.92">${esc(speaker)}</text>` : ''}
+
+  <!-- 4. DSE wordmark, bottom-left (DSE-logo-white.svg @ 479x123) -->
+  <svg x="120" y="920" width="360" height="92" viewBox="0 0 479 123"
+       preserveAspectRatio="xMinYMid meet">
+    ${logoInner}
+  </svg>
+
+  ${hasHeadshot ? `
+  <!-- 5. Headshot -->
+  <image x="1320" y="300" width="480" height="480"
+         xlink:href="${headshotDataUri}"
+         clip-path="url(#head-clip)"
+         preserveAspectRatio="xMidYMid slice"/>
+  ` : ''}
+</svg>`.trim();
+}
+
+async function renderVideoCard(filename, fields) {
+  let headshotDataUri = null;
+  let hasHeadshot = false;
+  if (fields.headshotPath) {
+    // Pre-resize via sharp to keep the embedded data URI small.
+    const buf = await sharp(fields.headshotPath)
+      .resize(480, 480, { fit: 'cover', position: 'attention' })
+      .png()
+      .toBuffer();
+    headshotDataUri = `data:image/png;base64,${buf.toString('base64')}`;
+    hasHeadshot = true;
+  }
+
+  const svgBuf = Buffer.from(videoCardSvg({
+    title:   fields.title,
+    speaker: fields.speaker,
+    hasHeadshot,
+    headshotDataUri,
+  }));
+  const out = path.join(CARD_DIR, filename);
+  await sharp(svgBuf).png({ quality: 95 }).toFile(out);
+  console.log(`  ${path.relative(ROOT, out)}`);
+}
+
 async function main() {
   console.log('Generating OG images...');
 
@@ -141,12 +265,21 @@ async function main() {
   if (fs.existsSync(talksPath)) {
     const data = JSON.parse(fs.readFileSync(talksPath, 'utf8'));
     for (const t of (data.posts || [])) {
-      const filename = `talk-${t.slug}.png`;
-      const footer = [t.day, t.month, t.year].filter(Boolean).join(' ') || 'Data Science in Education';
-      await render(filename, {
+      const ogFile   = `talk-${t.slug}.png`;
+      const footer   = [t.day, t.month, t.year].filter(Boolean).join(' ') || 'Data Science in Education';
+      await render(ogFile, {
         eyebrow: t.speaker || 'Data Science in Education',
         title:   t.title,
         footer,
+      });
+
+      // 4. Video card (1920x1080) — used as the title still in the
+      //    assembled YouTube video and as the YouTube thumbnail.
+      const headshotPath = findHeadshot(t.speaker);
+      await renderVideoCard(`talk-${t.slug}.png`, {
+        title:   t.title,
+        speaker: t.speaker,
+        headshotPath,
       });
     }
   } else {

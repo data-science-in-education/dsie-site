@@ -1,11 +1,24 @@
-# OAuth credentials - never commit these
+# OAuth credentials — never commit these
 client_secrets.json
 token.json
 
-# Asset / output staging
-defaults/intro.mp4
-defaults/outro.mp4
+# Output staging
 out/
+
+# Per-talk source files (speaker recordings, raw audio, etc.)
 *.mp4
 *.wav
 *.mov
+*.m4a
+
+# ...but DO commit the canonical brand stings — they're part of
+# the pipeline, same as any other branding asset.
+!defaults/intro.mp4
+!defaults/outro.mp4
+
+# ...and DO commit the sting source HTML / jingle so anyone can
+# re-render them via `npm run render-stings`.
+!sting-src/
+!sting-src/*.html
+!sting-src/*.wav
+!sting-src/*.mp3
