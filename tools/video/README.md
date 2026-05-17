@@ -20,10 +20,9 @@ sudo apt update && sudo apt install -y ffmpeg python3-venv
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r tools/video/requirements.txt
 
-# 2. Drop your standard intro/outro into defaults/
-mkdir -p tools/video/defaults
-cp /path/to/intro.mp4 tools/video/defaults/intro.mp4
-cp /path/to/outro.mp4 tools/video/defaults/outro.mp4
+# 2. (No step 2 — the DSE intro/outro stings ship with the repo at
+#     tools/video/defaults/{intro,outro}.mp4.  If you ever want to
+#     swap them out, drop replacements in that folder.)
 
 # 3. YouTube OAuth (once)
 #    - https://console.cloud.google.com/ -> create a project
