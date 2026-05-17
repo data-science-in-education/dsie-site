@@ -4,12 +4,13 @@
   "description": "Data Science in Education website with Notion CMS integration",
   "main": "index.js",
   "scripts": {
+    "fetch-meetup": "node scripts/meetup-fetch.js",
     "fetch-notion": "node scripts/notion-fetch.js",
-    "sync-meetup": "node scripts/meetup-sync.js",
-    "og": "node scripts/og-image.js",
-    "build-data": "node scripts/notion-fetch.js && node scripts/og-image.js && echo 'Data + OG images updated successfully!'",
-    "serve": "python3 -m http.server 8000",
-    "dev": "npm run build-data && npm run serve"
+    "sync-meetup":  "node scripts/meetup-sync.js",
+    "og":           "node scripts/og-image.js",
+    "build-data":   "npm run fetch-meetup && npm run fetch-notion && npm run og",
+    "serve":        "python3 -m http.server 8000",
+    "dev":          "npm run build-data && npm run serve"
   },
   "keywords": [
     "data-science",
