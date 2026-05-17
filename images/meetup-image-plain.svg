@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1001 564" width="1001" height="564">
+  <!--
+    DSE meetup background pattern (plain — no logo, no text).
+
+    Extracted from the settled state (t >= 1.0s) of the IntroSting's
+    MeetupPattern component in the Claude Design sting player. The
+    same composition is used as the title-card background under
+    images/video-cards/ and can be reused anywhere we want the brand
+    "shape stage" without copy on it.
+
+    Colours: #3514FF (blue), #4328EE (blueTint), #89C5FD (sky),
+             #8EBBFB (skyTint), #F9ABB9 (pink), #E8A0BF (pinkDark).
+  -->
+
+  <!-- Base -->
+  <rect x="0" y="0" width="1001" height="564" fill="#3514FF"/>
+
+  <!-- Atmospheric white ellipses (faint) -->
+  <ellipse cx="1239.06" cy="850.618" rx="675.969" ry="674.875"
+           transform="rotate(139.477 1239.06 850.618)"
+           fill="#ffffff" opacity="0.10"/>
+  <ellipse cx="-484.424" cy="466.027" rx="723.367" ry="722.196"
+           transform="rotate(155.656 -484.424 466.027)"
+           fill="#ffffff" opacity="0.10"/>
+  <ellipse cx="156.794" cy="749.758" rx="675.969" ry="674.875"
+           transform="rotate(155.656 156.794 749.758)"
+           fill="#ffffff" opacity="0.10"/>
+
+  <!-- Sky-blue ring (bottom-right area, mostly off-canvas) -->
+  <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M1053.41 1000.61C1216.15 1000.61 1348.08 868.677 1348.08 705.935C1348.08 543.193 1216.15 411.265 1053.41 411.265C890.665 411.265 758.737 543.193 758.737 705.935C758.737 868.677 890.665 1000.61 1053.41 1000.61ZM1053.41 1019.84C1226.77 1019.84 1367.31 879.298 1367.31 705.935C1367.31 532.572 1226.77 392.034 1053.41 392.034C880.044 392.034 739.506 532.572 739.506 705.935C739.506 879.298 880.044 1019.84 1053.41 1019.84Z"
+        fill="#89C5FD" opacity="0.89"/>
+
+  <!-- Sky-blue ring (upper-left area, mostly off-canvas) -->
+  <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M25.6647 140.266C188.407 140.266 320.335 8.33724 320.335 -154.405C320.335 -317.147 188.407 -449.075 25.6647 -449.075C-137.077 -449.075 -269.006 -317.147 -269.006 -154.405C-269.006 8.33724 -137.077 140.266 25.6647 140.266ZM25.6647 159.496C199.027 159.496 339.566 18.958 339.566 -154.405C339.566 -327.767 199.027 -468.306 25.6647 -468.306C-147.698 -468.306 -288.236 -327.767 -288.236 -154.405C-288.236 18.958 -147.698 159.496 25.6647 159.496Z"
+        fill="#89C5FD" opacity="0.89"/>
+
+  <!-- Solid disc bottom-left -->
+  <circle cx="261.107" cy="671.042" r="260.656" fill="#4328EE"/>
+
+  <!-- Light blue disc top-right -->
+  <ellipse cx="667.851" cy="-141.922" rx="235.845" ry="235.845"
+           fill="#8EBBFB" opacity="0.34"/>
+
+  <!--
+    The animated sting also lands a pink rhombus (lower-left) and a
+    pink dot (upper-right) on top of this composition. We deliberately
+    omit them here so the static plain pattern stays clean for use as
+    a card background — content overlay (title, headshot) can sit
+    without competing with bright pink. Add them back if you ever
+    want a pure animation freeze-frame.
+  -->
+</svg>

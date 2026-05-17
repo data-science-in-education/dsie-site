@@ -116,6 +116,10 @@ async function render(filename, fields) {
 // Used for the 3 s title still in assembled YouTube videos and as the
 // YouTube thumbnail. Layout: title (large) + description (smaller) at
 // left, optional circular headshot at right, DSE wordmark bottom-left.
+//
+// Background and logo come from real brand SVGs (images/meetup-image-plain.svg
+// and images/logos/DSE-logo-white.svg) rather than being hand-drawn here,
+// so the design tracks any future brand updates.
 
 function slugify(s) {
   return String(s || '').toLowerCase()
@@ -134,14 +138,23 @@ function findHeadshot(speaker) {
   return null;
 }
 
+// Read an SVG file and return its inner content (everything between the
+// root <svg> tags), so it can be wrapped inside a positioned <svg> in
+// the composing template. Strips comments to keep output tidy.
+function readSvgInner(filename) {
+  const raw = fs.readFileSync(path.join(ROOT, 'images', filename), 'utf8');
+  const m = raw.match(/<svg\b[^>]*>([\s\S]*?)<\/svg>/i);
+  if (!m) throw new Error(`Could not parse ${filename}`);
+  return m[1].replace(/<!--[\s\S]*?-->/g, '').trim();
+}
+
 function videoCardSvg({ title, description, hasHeadshot, headshotDataUri }) {
-  // When a headshot is present, reserve the right ~30% of the canvas
-  // for it (a circle centred at x=1560) and constrain text to the
-  // left half. Without one, text gets a wider column.
+  // When a headshot is present, constrain text to the left half so it
+  // doesn't run into the circle. Without one, text gets a wider column.
   const titleLines  = wrap(title, hasHeadshot ? 18 : 26);
   const titleSize   = titleLines.length >= 4 ? 80 : titleLines.length >= 3 ? 92 : 108;
   const titleLH     = Math.round(titleSize * 1.05);
-  const titleTop    = 200;
+  const titleTop    = 220;
   const titleHeight = titleLines.length * titleLH;
 
   const descLines = description
@@ -151,29 +164,26 @@ function videoCardSvg({ title, description, hasHeadshot, headshotDataUri }) {
   const descLH    = Math.round(descSize * 1.4);
   const descTop   = titleTop + titleHeight + 56;
 
+  // Brand assets, inlined (vector preserved, single sharp render pass).
+  const bgInner   = readSvgInner('meetup-image-plain.svg');
+  const logoInner = readSvgInner('logos/DSE-logo-white.svg');
+
   return `
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
      width="1920" height="1080" viewBox="0 0 1920 1080">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#3514FF"/>
-      <stop offset="100%" stop-color="#2A0FCC"/>
-    </linearGradient>
     <clipPath id="head-clip">
       <circle cx="1560" cy="540" r="240"/>
     </clipPath>
   </defs>
-  <rect width="1920" height="1080" fill="url(#bg)"/>
 
-  <!-- decorative pattern (same vocabulary as the OG cards) -->
-  <ellipse cx="2100" cy="980"  rx="780" ry="780" fill="#fff"     opacity="0.07"/>
-  <ellipse cx="-260" cy="360"  rx="780" ry="780" fill="#fff"     opacity="0.07"/>
-  <circle  cx="${hasHeadshot ? 1560 : 1700}" cy="${hasHeadshot ? 540 : 200}" r="${hasHeadshot ? 280 : 280}"
-           fill="none" stroke="#89C5FD" stroke-width="18" opacity="0.55"/>
-  <circle  cx="${hasHeadshot ? 1300 : 400}"  cy="${hasHeadshot ? 940 : 720}" r="${hasHeadshot ? 16 : 280}"
-           fill="${hasHeadshot ? '#F9ABB9' : '#4328EE'}"/>
+  <!-- 1. Background pattern (meetup-image-plain.svg, sliced to fill 16:9) -->
+  <svg x="0" y="0" width="1920" height="1080" viewBox="0 0 1001 564"
+       preserveAspectRatio="xMidYMid slice">
+    ${bgInner}
+  </svg>
 
-  <!-- title -->
+  <!-- 2. Title -->
   <g font-family="Space Grotesk, sans-serif" font-weight="700"
      font-size="${titleSize}" fill="#fff" letter-spacing="-2.4">
     ${titleLines.map((line, i) =>
@@ -181,36 +191,23 @@ function videoCardSvg({ title, description, hasHeadshot, headshotDataUri }) {
     ).join('\n    ')}
   </g>
 
-  <!-- description -->
+  <!-- 3. Description -->
   ${descLines.length ? `
   <g font-family="Hanken Grotesk, sans-serif" font-weight="400"
-     font-size="${descSize}" fill="#fff" opacity="0.82">
+     font-size="${descSize}" fill="#fff" opacity="0.86">
     ${descLines.map((line, i) =>
       `<text x="120" y="${descTop + i * descLH}">${esc(line)}</text>`
     ).join('\n    ')}
   </g>` : ''}
 
-  <!-- DSE wordmark (bottom-left) -->
-  <g transform="translate(120, 940)">
-    <g stroke="#fff" stroke-width="3" fill="none">
-      <polygon points="44,8 80,28 44,48 8,28" />
-      <polyline points="44,48 44,68" />
-      <circle cx="8"  cy="28" r="4" fill="#fff"/>
-      <circle cx="80" cy="28" r="4" fill="#fff"/>
-      <circle cx="44" cy="68" r="4" fill="#fff"/>
-    </g>
-    <text x="108" y="32" font-family="Space Grotesk, sans-serif"
-          font-weight="600" font-size="22" fill="#fff" letter-spacing="0.5">
-      Data Science
-    </text>
-    <text x="108" y="60" font-family="Space Grotesk, sans-serif"
-          font-weight="600" font-size="22" fill="#fff" letter-spacing="0.5">
-      in Education
-    </text>
-  </g>
+  <!-- 4. DSE wordmark, bottom-left (DSE-logo-white.svg @ 479x123) -->
+  <svg x="120" y="920" width="360" height="92" viewBox="0 0 479 123"
+       preserveAspectRatio="xMinYMid meet">
+    ${logoInner}
+  </svg>
 
   ${hasHeadshot ? `
-  <!-- headshot -->
+  <!-- 5. Headshot -->
   <image x="1320" y="300" width="480" height="480"
          xlink:href="${headshotDataUri}"
          clip-path="url(#head-clip)"
