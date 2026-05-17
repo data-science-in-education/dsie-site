@@ -1,28 +1,31 @@
 /**
  * OG image generator
  *
- * Produces 1200x630 PNGs that platforms (LinkedIn, Twitter/X, Slack, etc.)
- * use as link previews. Two outputs:
+ * Produces two families of branded PNGs:
  *
- *   - images/og/default.png         site-wide fallback
- *   - images/og/talk-<slug>.png     one per past talk in data/talks.json
- *
- * The site-wide default is referenced via <meta property="og:image"> in
- * every HTML file. Per-talk pages override that at render time (handled
- * in past-loader.js).
+ *   - OG cards (1200x630) under images/og/ — used as social link
+ *     previews on LinkedIn / Twitter / Slack. One default + one per
+ *     site page + one per past talk.
+ *   - Video cards (1920x1080) under images/video-cards/ — used as
+ *     the title still in assembled YouTube videos AND as the YouTube
+ *     thumbnail. One per past talk. If images/speakers/<slug>.png
+ *     exists, it's composited in as a circular headshot.
  *
  * Run:  npm run og   (or:  node scripts/og-image.js)
  *
  * Re-run whenever you add a new talk to data/talks.json. Idempotent.
  */
 
-const fs   = require('fs');
-const path = require('path');
+const fs    = require('fs');
+const path  = require('path');
 const sharp = require('sharp');
 
-const ROOT = path.resolve(__dirname, '..');
-const OG_DIR = path.join(ROOT, 'images', 'og');
-fs.mkdirSync(OG_DIR, { recursive: true });
+const ROOT          = path.resolve(__dirname, '..');
+const OG_DIR        = path.join(ROOT, 'images', 'og');
+const CARD_DIR      = path.join(ROOT, 'images', 'video-cards');
+const SPEAKERS_DIR  = path.join(ROOT, 'images', 'speakers');
+fs.mkdirSync(OG_DIR,   { recursive: true });
+fs.mkdirSync(CARD_DIR, { recursive: true });
 
 // ---- shared SVG template ----
 // 1200x630 with the DSE blue gradient + pattern marks. Text is wrapped by
@@ -109,6 +112,137 @@ async function render(filename, fields) {
   console.log(`  ${path.relative(ROOT, out)}`);
 }
 
+// ---- video card (1920x1080) ----
+// Used for the 3 s title still in assembled YouTube videos and as the
+// YouTube thumbnail. Layout: title (large) + description (smaller) at
+// left, optional circular headshot at right, DSE wordmark bottom-left.
+
+function slugify(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+}
+
+// Find a headshot file for a speaker. Returns null if absent.
+function findHeadshot(speaker) {
+  if (!speaker) return null;
+  const slug = slugify(speaker);
+  for (const ext of ['png', 'jpg', 'jpeg', 'webp']) {
+    const p = path.join(SPEAKERS_DIR, `${slug}.${ext}`);
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+function videoCardSvg({ title, description, hasHeadshot, headshotDataUri }) {
+  // When a headshot is present, reserve the right ~30% of the canvas
+  // for it (a circle centred at x=1560) and constrain text to the
+  // left half. Without one, text gets a wider column.
+  const titleLines  = wrap(title, hasHeadshot ? 18 : 26);
+  const titleSize   = titleLines.length >= 4 ? 80 : titleLines.length >= 3 ? 92 : 108;
+  const titleLH     = Math.round(titleSize * 1.05);
+  const titleTop    = 200;
+  const titleHeight = titleLines.length * titleLH;
+
+  const descLines = description
+    ? wrap(description, hasHeadshot ? 32 : 48).slice(0, 3)
+    : [];
+  const descSize  = 38;
+  const descLH    = Math.round(descSize * 1.4);
+  const descTop   = titleTop + titleHeight + 56;
+
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#3514FF"/>
+      <stop offset="100%" stop-color="#2A0FCC"/>
+    </linearGradient>
+    <clipPath id="head-clip">
+      <circle cx="1560" cy="540" r="240"/>
+    </clipPath>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+
+  <!-- decorative pattern (same vocabulary as the OG cards) -->
+  <ellipse cx="2100" cy="980"  rx="780" ry="780" fill="#fff"     opacity="0.07"/>
+  <ellipse cx="-260" cy="360"  rx="780" ry="780" fill="#fff"     opacity="0.07"/>
+  <circle  cx="${hasHeadshot ? 1560 : 1700}" cy="${hasHeadshot ? 540 : 200}" r="${hasHeadshot ? 280 : 280}"
+           fill="none" stroke="#89C5FD" stroke-width="18" opacity="0.55"/>
+  <circle  cx="${hasHeadshot ? 1300 : 400}"  cy="${hasHeadshot ? 940 : 720}" r="${hasHeadshot ? 16 : 280}"
+           fill="${hasHeadshot ? '#F9ABB9' : '#4328EE'}"/>
+
+  <!-- title -->
+  <g font-family="Space Grotesk, sans-serif" font-weight="700"
+     font-size="${titleSize}" fill="#fff" letter-spacing="-2.4">
+    ${titleLines.map((line, i) =>
+      `<text x="120" y="${titleTop + i * titleLH}">${esc(line)}</text>`
+    ).join('\n    ')}
+  </g>
+
+  <!-- description -->
+  ${descLines.length ? `
+  <g font-family="Hanken Grotesk, sans-serif" font-weight="400"
+     font-size="${descSize}" fill="#fff" opacity="0.82">
+    ${descLines.map((line, i) =>
+      `<text x="120" y="${descTop + i * descLH}">${esc(line)}</text>`
+    ).join('\n    ')}
+  </g>` : ''}
+
+  <!-- DSE wordmark (bottom-left) -->
+  <g transform="translate(120, 940)">
+    <g stroke="#fff" stroke-width="3" fill="none">
+      <polygon points="44,8 80,28 44,48 8,28" />
+      <polyline points="44,48 44,68" />
+      <circle cx="8"  cy="28" r="4" fill="#fff"/>
+      <circle cx="80" cy="28" r="4" fill="#fff"/>
+      <circle cx="44" cy="68" r="4" fill="#fff"/>
+    </g>
+    <text x="108" y="32" font-family="Space Grotesk, sans-serif"
+          font-weight="600" font-size="22" fill="#fff" letter-spacing="0.5">
+      Data Science
+    </text>
+    <text x="108" y="60" font-family="Space Grotesk, sans-serif"
+          font-weight="600" font-size="22" fill="#fff" letter-spacing="0.5">
+      in Education
+    </text>
+  </g>
+
+  ${hasHeadshot ? `
+  <!-- headshot -->
+  <image x="1320" y="300" width="480" height="480"
+         xlink:href="${headshotDataUri}"
+         clip-path="url(#head-clip)"
+         preserveAspectRatio="xMidYMid slice"/>
+  ` : ''}
+</svg>`.trim();
+}
+
+async function renderVideoCard(filename, fields) {
+  let headshotDataUri = null;
+  let hasHeadshot = false;
+  if (fields.headshotPath) {
+    // Pre-resize via sharp to keep the embedded data URI small.
+    const buf = await sharp(fields.headshotPath)
+      .resize(480, 480, { fit: 'cover', position: 'attention' })
+      .png()
+      .toBuffer();
+    headshotDataUri = `data:image/png;base64,${buf.toString('base64')}`;
+    hasHeadshot = true;
+  }
+
+  const svgBuf = Buffer.from(videoCardSvg({
+    title:       fields.title,
+    description: fields.description,
+    hasHeadshot,
+    headshotDataUri,
+  }));
+  const out = path.join(CARD_DIR, filename);
+  await sharp(svgBuf).png({ quality: 95 }).toFile(out);
+  console.log(`  ${path.relative(ROOT, out)}`);
+}
+
 async function main() {
   console.log('Generating OG images...');
 
@@ -141,12 +275,21 @@ async function main() {
   if (fs.existsSync(talksPath)) {
     const data = JSON.parse(fs.readFileSync(talksPath, 'utf8'));
     for (const t of (data.posts || [])) {
-      const filename = `talk-${t.slug}.png`;
-      const footer = [t.day, t.month, t.year].filter(Boolean).join(' ') || 'Data Science in Education';
-      await render(filename, {
+      const ogFile   = `talk-${t.slug}.png`;
+      const footer   = [t.day, t.month, t.year].filter(Boolean).join(' ') || 'Data Science in Education';
+      await render(ogFile, {
         eyebrow: t.speaker || 'Data Science in Education',
         title:   t.title,
         footer,
+      });
+
+      // 4. Video card (1920x1080) — used as the title still in the
+      //    assembled YouTube video and as the YouTube thumbnail.
+      const headshotPath = findHeadshot(t.speaker);
+      await renderVideoCard(`talk-${t.slug}.png`, {
+        title:       t.title,
+        description: t.description || (t.speaker ? `${t.speaker} — Data Science in Education` : ''),
+        headshotPath,
       });
     }
   } else {

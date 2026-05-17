@@ -88,28 +88,49 @@ automatically.
 ## Per-talk workflow
 
 ```bash
-# 1. Assemble
+# 1. (Once) Drop a headshot for the speaker if you have one
+#    images/speakers/<speaker-slug>.png (see images/speakers/README.md)
+
+# 2. Regenerate the title card (1920x1080 PNG)
+npm run og
+#    Produces images/video-cards/talk-<slug>.png — pulled from
+#    data/talks.json, composites the headshot if present.
+
+# 3. Assemble
 tools/video/assemble.sh \
   --speaker /path/to/speaker-recording.mp4 \
+  --title-card images/video-cards/talk-lena-park-causal.png \
   --out out/lena-park-causal.mp4
 
 # Options:
-#   --intro / --outro    override the defaults
-#   --audio audio.wav    replace the speaker-recording audio with a
-#                        higher-quality separate track
-#   --out path           default is out/final.mp4
+#   --intro / --outro             override the default stings
+#   --title-card path             3 s still inserted between intro
+#                                 and speaker. Same image is the
+#                                 YouTube thumbnail.
+#   --title-card-duration N       default 3 seconds
+#   --audio audio.wav             replace the speaker-recording audio
+#                                 with a higher-quality separate track
+#   --out path                    default is out/final.mp4
 
-# 2. Fill in the metadata
+# 4. Fill in the metadata
 cp tools/video/metadata.example.yaml tools/video/talks/lena-park.yaml
 # ... edit title, description, tags ...
 
-# 3. Upload
+# 5. Upload
 python tools/video/upload.py \
   --video out/lena-park-causal.mp4 \
   --metadata tools/video/talks/lena-park.yaml
 
 # Prints the video URL when done.
+
+# 6. Set the thumbnail
+#    Open the video in YouTube Studio → Edit → Custom thumbnail,
+#    upload images/video-cards/talk-<slug>.png. (upload.py doesn't
+#    push the thumbnail itself yet — could be added later, but
+#    YouTube Studio is one click.)
 ```
+
+The assembled video runs as: `intro sting (5s) → title card (3s) → speaker recording → outro sting (5s)`. The title card serves double-duty: it's the in-video "what this talk is" still AND the per-video YouTube thumbnail. One image, two uses.
 
 You can skip the metadata file and pass flags inline instead:
 
