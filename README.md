@@ -54,7 +54,9 @@ git clone https://github.com/data-science-in-education/dsie-site.git
 cd dsie-site
 npm install
 
-# Set up Notion access - see NOTION_SETUP.md
+# Set up data sources:
+#   - Meetup (upcoming events) → MEETUP_SETUP.md
+#   - Notion (past-talk write-ups) → NOTION_SETUP.md
 cp .env.example .env
 # ... edit .env ...
 
