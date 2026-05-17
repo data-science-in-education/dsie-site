@@ -148,7 +148,7 @@ function readSvgInner(filename) {
   return m[1].replace(/<!--[\s\S]*?-->/g, '').trim();
 }
 
-function videoCardSvg({ title, description, hasHeadshot, headshotDataUri }) {
+function videoCardSvg({ title, speaker, hasHeadshot, headshotDataUri }) {
   // When a headshot is present, constrain text to the left half so it
   // doesn't run into the circle. Without one, text gets a wider column.
   const titleLines  = wrap(title, hasHeadshot ? 18 : 26);
@@ -157,12 +157,8 @@ function videoCardSvg({ title, description, hasHeadshot, headshotDataUri }) {
   const titleTop    = 220;
   const titleHeight = titleLines.length * titleLH;
 
-  const descLines = description
-    ? wrap(description, hasHeadshot ? 32 : 48).slice(0, 3)
-    : [];
-  const descSize  = 38;
-  const descLH    = Math.round(descSize * 1.4);
-  const descTop   = titleTop + titleHeight + 56;
+  const speakerSize = 44;
+  const speakerTop  = titleTop + titleHeight + 56;
 
   // Brand assets, inlined (vector preserved, single sharp render pass).
   const bgInner   = readSvgInner('meetup-image-plain.svg');
@@ -191,14 +187,11 @@ function videoCardSvg({ title, description, hasHeadshot, headshotDataUri }) {
     ).join('\n    ')}
   </g>
 
-  <!-- 3. Description -->
-  ${descLines.length ? `
-  <g font-family="Hanken Grotesk, sans-serif" font-weight="400"
-     font-size="${descSize}" fill="#fff" opacity="0.86">
-    ${descLines.map((line, i) =>
-      `<text x="120" y="${descTop + i * descLH}">${esc(line)}</text>`
-    ).join('\n    ')}
-  </g>` : ''}
+  <!-- 3. Speaker -->
+  ${speaker ? `
+  <text x="120" y="${speakerTop}"
+        font-family="Hanken Grotesk, sans-serif" font-weight="500"
+        font-size="${speakerSize}" fill="#fff" opacity="0.92">${esc(speaker)}</text>` : ''}
 
   <!-- 4. DSE wordmark, bottom-left (DSE-logo-white.svg @ 479x123) -->
   <svg x="120" y="920" width="360" height="92" viewBox="0 0 479 123"
@@ -230,8 +223,8 @@ async function renderVideoCard(filename, fields) {
   }
 
   const svgBuf = Buffer.from(videoCardSvg({
-    title:       fields.title,
-    description: fields.description,
+    title:   fields.title,
+    speaker: fields.speaker,
     hasHeadshot,
     headshotDataUri,
   }));
@@ -284,8 +277,8 @@ async function main() {
       //    assembled YouTube video and as the YouTube thumbnail.
       const headshotPath = findHeadshot(t.speaker);
       await renderVideoCard(`talk-${t.slug}.png`, {
-        title:       t.title,
-        description: t.description || (t.speaker ? `${t.speaker} — Data Science in Education` : ''),
+        title:   t.title,
+        speaker: t.speaker,
         headshotPath,
       });
     }
