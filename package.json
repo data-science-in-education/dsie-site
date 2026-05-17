@@ -4,13 +4,16 @@
   "description": "Data Science in Education website with Notion CMS integration",
   "main": "index.js",
   "scripts": {
-    "fetch-meetup": "node scripts/meetup-fetch.js",
-    "fetch-notion": "node scripts/notion-fetch.js",
-    "sync-meetup":  "node scripts/meetup-sync.js",
-    "og":           "node scripts/og-image.js",
-    "build-data":   "npm run fetch-meetup && npm run fetch-notion && npm run og",
-    "serve":        "python3 -m http.server 8000",
-    "dev":          "npm run build-data && npm run serve"
+    "fetch-meetup":  "node scripts/meetup-fetch.js",
+    "fetch-notion":  "node scripts/notion-fetch.js",
+    "sync-meetup":   "node scripts/meetup-sync.js",
+    "og":            "node scripts/og-image.js",
+    "build-data":    "npm run fetch-meetup && npm run fetch-notion && npm run og",
+    "render-intro":  "node tools/video/render-sting.js --html tools/video/sting-src/intro.html --audio tools/video/sting-src/synth-swell-jingle.wav --out tools/video/defaults/intro.mp4",
+    "render-outro":  "node tools/video/render-sting.js --html tools/video/sting-src/outro.html --audio tools/video/sting-src/synth-swell-jingle.wav --out tools/video/defaults/outro.mp4",
+    "render-stings": "npm run render-intro && npm run render-outro",
+    "serve":         "python3 -m http.server 8000",
+    "dev":           "npm run build-data && npm run serve"
   },
   "keywords": [
     "data-science",
@@ -26,6 +29,7 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
+    "playwright": "^1.60.0",
     "sharp": "^0.34.5"
   }
 }

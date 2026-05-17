@@ -1,30 +1,47 @@
 # DSE video pipeline
 
-Two scripts:
+Three scripts:
 
+- `render-sting.js` — renders the intro/outro **stings** from `sting-src/*.html` + `sting-src/*.wav` to MP4. Run via `npm run render-stings`. Headless Chromium drives the CSS animation so real web fonts (Space Grotesk) render correctly.
 - `assemble.sh` — stitches **intro + speaker recording + outro** into one YouTube-ready MP4.
 - `upload.py` — uploads that MP4 to the DSE YouTube channel via the YouTube Data API.
 
 The speaker recording is assumed to already contain the slides (i.e. a screen recording of the talk), so slide timing comes for free.
 
+## Sting sources
+
+Source files live under `tools/video/sting-src/`:
+
+| File                            | What                                                                     |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| `intro.html` / `outro.html`     | Self-contained HTML pages with a CSS-animated SVG. Exported from Claude Design. Load Space Grotesk from jsDelivr. |
+| `synth-swell-jingle.wav`        | Shared 5 s jingle. Same audio under both stings.                          |
+
+The rendered outputs (`tools/video/defaults/intro.mp4`, `outro.mp4`) are committed so anyone can build a talk video without re-rendering. If the HTML or audio changes, run `npm run render-stings` and commit the updated MP4s.
+
 ## One-time setup
 
 ```bash
-# 1. Tools
+# 1. System tools
 #    WSL / Ubuntu / Debian
 sudo apt update && sudo apt install -y ffmpeg python3-venv
 
 #    macOS         : brew install ffmpeg
 #    Windows (PS)  : winget install Gyan.FFmpeg   (or: choco install ffmpeg)
 
+# 2. Node deps (Playwright for the sting renderer)
+npm install
+npx playwright install chromium
+
+# 3. Python deps (for upload.py)
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r tools/video/requirements.txt
 
-# 2. (No step 2 — the DSE intro/outro stings ship with the repo at
-#     tools/video/defaults/{intro,outro}.mp4.  If you ever want to
-#     swap them out, drop replacements in that folder.)
+# 4. (No step 4 — the rendered intro/outro stings ship with the repo
+#     at tools/video/defaults/{intro,outro}.mp4. To re-render them
+#     from sting-src/, run: `npm run render-stings`.)
 
-# 3. YouTube OAuth (once)
+# 5. YouTube OAuth (once)
 #    - https://console.cloud.google.com/ -> create a project
 #    - Enable "YouTube Data API v3"
 #    - Create OAuth client ID -> "Desktop app"

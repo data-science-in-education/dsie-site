@@ -15,3 +15,10 @@ out/
 # the pipeline, same as any other branding asset.
 !defaults/intro.mp4
 !defaults/outro.mp4
+
+# ...and DO commit the sting source HTML / jingle so anyone can
+# re-render them via `npm run render-stings`.
+!sting-src/
+!sting-src/*.html
+!sting-src/*.wav
+!sting-src/*.mp3
