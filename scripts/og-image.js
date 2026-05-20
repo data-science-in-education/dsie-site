@@ -260,11 +260,12 @@ async function main() {
     footer:  'datascienceineducation.events',
   });
 
-  // 3. Per-talk cards (if data/talks.json exists)
-  const talksPath = path.join(ROOT, 'data', 'talks.json');
+  // 3. Per-talk cards (if data/events.json exists)
+  const talksPath = path.join(ROOT, 'data', 'events.json');
   if (fs.existsSync(talksPath)) {
     const data = JSON.parse(fs.readFileSync(talksPath, 'utf8'));
-    for (const t of (data.posts || [])) {
+    const now = new Date();
+    for (const t of (data.events || []).filter(e => new Date(e.date) < now)) {
       const ogFile   = `talk-${t.slug}.png`;
       const footer   = [t.day, t.month, t.year].filter(Boolean).join(' ') || 'Data Science in Education';
       await render(ogFile, {
@@ -283,7 +284,7 @@ async function main() {
       });
     }
   } else {
-    console.log('  (no data/talks.json yet - skipping per-talk OG images)');
+    console.log('  (no data/events.json yet - skipping per-talk OG images)');
   }
 
   console.log('Done.');

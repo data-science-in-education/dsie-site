@@ -96,9 +96,16 @@ npm run og
 #    Produces images/video-cards/talk-<slug>.png — pulled from
 #    data/talks.json, composites the headshot if present.
 
-# 3. Assemble
+# 3. Trim the raw recording (browser tool)
+#    Open tools/video/trim.html in Chrome. Load the raw MP4, mark what
+#    to keep, export cuts.json. Then run:
+tools/video/trim.sh --cuts cuts.json --input /path/to/raw.mp4
+#    → out/trimmed.mp4
+#    See "Trimming" below for full trim.html controls.
+
+# 4. Assemble
 tools/video/assemble.sh \
-  --speaker /path/to/speaker-recording.mp4 \
+  --speaker out/trimmed.mp4 \
   --title-card images/video-cards/talk-lena-park-causal.png \
   --out out/lena-park-causal.mp4
 
@@ -112,25 +119,56 @@ tools/video/assemble.sh \
 #                                 with a higher-quality separate track
 #   --out path                    default is out/final.mp4
 
-# 4. Fill in the metadata
+# 5. Fill in the metadata
 cp tools/video/metadata.example.yaml tools/video/talks/lena-park.yaml
 # ... edit title, description, tags ...
 
-# 5. Upload
+# 6. Upload
 python tools/video/upload.py \
   --video out/lena-park-causal.mp4 \
   --metadata tools/video/talks/lena-park.yaml
 
 # Prints the video URL when done.
 
-# 6. Set the thumbnail
-#    Open the video in YouTube Studio → Edit → Custom thumbnail,
-#    upload images/video-cards/talk-<slug>.png. (upload.py doesn't
-#    push the thumbnail itself yet — could be added later, but
-#    YouTube Studio is one click.)
+# 7. Set the thumbnail + end screens
+#    In YouTube Studio → Edit:
+#    - Custom thumbnail: upload images/video-cards/talk-<slug>.png
+#    - End screens: add clickable zones pointing to your channel /
+#      other talks / website. The outro is designed with visual slots
+#      for end screens — align them in the End Screen editor.
 ```
 
 The assembled video runs as: `intro sting (5s) → title card (3s) → speaker recording → outro sting (5s)`. The title card serves double-duty: it's the in-video "what this talk is" still AND the per-video YouTube thumbnail. One image, two uses.
+
+## Trimming
+
+`tools/video/trim.html` is a browser-based editor for marking which parts of a raw
+recording to keep. Open it in **Chrome** (file:// is fine — no server needed).
+
+**Controls:**
+
+| Action | How |
+|--------|-----|
+| Load video | Click "Choose file" or drag-and-drop onto the player |
+| Play / pause | Click **▶ Play** or press **Space** |
+| Step ±5 s | **◀◀ 5s** / **5s ▶▶** buttons, or **← →** keys |
+| Trim the start | Drag the left (blue) handle inward, or seek to the first frame you want and press **I** |
+| Trim the end | Drag the right (blue) handle inward, or seek to the last frame you want and press **O** |
+| Cut a section | Click and drag on the timeline to paint a red cut zone |
+| Delete a cut | Right-click the red zone → **Delete cut zone** |
+| Export | Click **Export cuts.json** — downloads a `cuts.json` file |
+
+The status bar shows how many segments will be kept and the total output duration.
+
+After exporting, run `trim.sh` to produce the trimmed MP4:
+
+```bash
+tools/video/trim.sh --cuts cuts.json --input raw.mp4 [--out out/trimmed.mp4]
+```
+
+`--input` can be omitted if `cuts.json` was exported with the same filename the raw file
+has on disk (the "source" field in the JSON). Single-segment exports use a fast `-ss`/`-to`
+cut; multi-segment exports use ffmpeg's `filter_complex` trim/concat.
 
 You can skip the metadata file and pass flags inline instead:
 

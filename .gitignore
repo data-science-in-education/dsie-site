@@ -7,4 +7,6 @@ data/videos.json
 data/talks.json
 .claude
 *.lnk
+*.Zone.Identifier
 ref/
+meetup-private.pem

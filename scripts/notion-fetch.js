@@ -150,6 +150,48 @@ function slugify(text) {
     .trim();
 }
 
+// Download a Notion-hosted speaker photo and save under images/speakers/.
+// Returns the local path (e.g. /images/speakers/jane-smith.jpg) so it never
+// goes stale — Notion S3 URLs are signed and expire after roughly one hour.
+async function downloadSpeakerPhoto(url, speakerName) {
+  if (!speakerName) return '';
+  const slug = slugify(speakerName);
+  const speakersDir = path.join(__dirname, '../images/speakers');
+  fs.mkdirSync(speakersDir, { recursive: true });
+
+  const pathname = new URL(url).pathname;
+  const rawExt   = pathname.split('.').pop().toLowerCase();
+  const ext      = ['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(rawExt)
+    ? (rawExt === 'jpeg' ? 'jpg' : rawExt)
+    : 'jpg';
+  const filename  = `${slug}.${ext}`;
+  const localPath = path.join(speakersDir, filename);
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    fs.writeFileSync(localPath, Buffer.from(await res.arrayBuffer()));
+    console.log(`  Saved images/speakers/${filename}`);
+  } catch (err) {
+    console.warn(`  Could not download speaker photo for ${speakerName}: ${err.message}`);
+    return '';
+  }
+  return `/images/speakers/${filename}`;
+}
+
+// Resolve speaker photo URL: check Notion "Speaker Photo" (Files & media) first,
+// then fall back to the plain "Speaker Photo URL" text field.
+// Notion-hosted files are downloaded locally so the signed URL never expires.
+async function getSpeakerPhotoUrl(props, speakerName) {
+  const filesProp = props['Speaker Photo'];
+  if (filesProp?.type === 'files' && filesProp.files?.length > 0) {
+    const file = filesProp.files[0];
+    if (file.type === 'external') return file.external.url;
+    if (file.type === 'file')     return downloadSpeakerPhoto(file.file.url, speakerName);
+  }
+  return getPropertyValue(props['Speaker Photo URL']);
+}
+
 /**
  * Fetch events from Notion
  */
@@ -173,7 +215,7 @@ async function fetchEvents() {
       ]
     });
 
-    const events = response.results.map(page => {
+    const events = await Promise.all(response.results.map(async page => {
       const props = page.properties;
       const eventDate = new Date(getPropertyValue(props.Date));
 
@@ -185,31 +227,26 @@ async function fetchEvents() {
         youtubeId = match ? match[1] : '';
       }
 
-      const title = getPropertyValue(props.Title);
+      const title       = getPropertyValue(props.Title);
+      const speakerName = props.Speaker ? getRichTextContent(props.Speaker) : '';
       return {
         id: page.id,
         slug: slugify(title),
         title: title,
-        speaker: props.Speaker ? getRichTextContent(props.Speaker) : '',
-        description: getPropertyValue(props.Description),
-        date: getPropertyValue(props.Date),
-        day: eventDate.getDate().toString().padStart(2, '0'),
-        month: eventDate.toLocaleDateString('en-US', { month: 'short' }),
-        year: eventDate.getFullYear().toString(),
-        location: getPropertyValue(props.Location),
-        time: getPropertyValue(props.Time),
-        highlights: getPropertyValue(props.Highlights)
-          .split('\n')
-          .filter(h => h.trim().length > 0)
-          .map(h => h.replace(/^[-•*]\s*/, '').trim()),
-        registrationLink: getPropertyValue(props['Registration Link']),
-        youtubeUrl: youtubeUrl,
-        youtubeId: youtubeId,
-        status: getPropertyValue(props.Status),
-        meetupId: getPropertyValue(props['Meetup ID']),
-        blogPublished: props['Blog Published'] ? getPropertyValue(props['Blog Published']) : false
+        speaker:          speakerName,
+        speakerBio:       props['Speaker Bio'] ? getRichTextContent(props['Speaker Bio']) : '',
+        speakerPhotoUrl:  await getSpeakerPhotoUrl(props, speakerName),
+        description:      getPropertyValue(props.Description),
+        date:             getPropertyValue(props.Date),
+        day:              eventDate.getDate().toString().padStart(2, '0'),
+        month:            eventDate.toLocaleDateString('en-US', { month: 'short' }),
+        year:             eventDate.getFullYear().toString(),
+        registrationUrl:  getPropertyValue(props['Registration URL']),
+        youtubeUrl:       youtubeUrl,
+        youtubeId:        youtubeId,
+        meetupId:         getPropertyValue(props['Meetup ID'])
       };
-    });
+    }));
 
     // Separate upcoming and past events (Meetup is the source of truth for
     // data/events.json; this in-memory split is only used to filter what we
@@ -233,55 +270,20 @@ async function fetchEvents() {
 }
 
 /**
- * Generate per-talk page data from events with Blog Published = true.
- * Fetches the Notion page body for each, converts blocks to HTML,
- * and writes everything to data/talks.json.
+ * Fetch Notion page body for each past event and attach as contentHtml.
+ * All past events appear on the site; content is shown when available.
  */
-async function generateTalkPages(events) {
-  console.log('Generating past-talk pages from events...');
-
-  const allEvents = [...events.upcoming, ...events.past];
-  const publishedEvents = allEvents
-    .filter(event => event.blogPublished)
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  const posts = await Promise.all(publishedEvents.map(async event => {
+async function enrichPastEvents(pastEvents) {
+  return Promise.all(pastEvents.map(async event => {
     const contentHtml = await fetchPageContentHtml(event.id);
-    return {
-      id: event.id,
-      slug: event.slug,
-      title: event.title,
-      speaker: event.speaker,
-      date: event.date,
-      day: event.day,
-      month: event.month,
-      year: event.year,
-      description: event.description,
-      contentHtml: contentHtml,
-      youtubeId: event.youtubeId,
-      youtubeUrl: event.youtubeUrl,
-      highlights: event.highlights
-    };
+    return { ...event, contentHtml };
   }));
-
-  const data = {
-    posts: posts,
-    lastUpdated: new Date().toISOString()
-  };
-
-  const filePath = path.join(__dirname, '../data/talks.json');
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-
-  console.log(`✓ Generated ${posts.length} past-talk pages`);
-  return data;
 }
 
 /**
- * Main execution
- *
- * Notion is the source for past-talk write-ups (data/talks.json). Meetup
- * is the source for upcoming events (data/events.json). If Notion creds
- * aren't set we soft-exit so a Vercel build without secrets still works.
+ * Main execution — Notion is the sole source for all event data.
+ * Writes a single data/events.json with upcoming + past (past includes contentHtml).
+ * Soft-exits if credentials are missing so a Vercel build without secrets still works.
  */
 async function main() {
   if (!process.env.NOTION_API_KEY || !process.env.NOTION_EVENTS_DB_ID) {
@@ -292,8 +294,23 @@ async function main() {
   try {
     console.log('\n=== Fetching data from Notion ===\n');
     const eventsData = await fetchEvents();
-    await generateTalkPages(eventsData);
-    console.log('\n✓ Notion talks data updated\n');
+
+    console.log('Fetching past event content from Notion pages...');
+    const enrichedPast = await enrichPastEvents(eventsData.past);
+
+    const filePath = path.join(__dirname, '../data/events.json');
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    const allEvents = [...eventsData.upcoming, ...enrichedPast]
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    fs.writeFileSync(filePath, JSON.stringify({
+      events:      allEvents,
+      lastUpdated: new Date().toISOString(),
+      source:      'notion',
+    }, null, 2));
+
+    console.log(`✓ Wrote ${allEvents.length} event(s) to data/events.json`);
+    console.log('\n✓ Notion data updated\n');
   } catch (error) {
     console.error('\n✗ Error:', error.message);
     process.exit(1);
@@ -304,4 +321,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { fetchEvents, generateTalkPages };
+module.exports = { fetchEvents, enrichPastEvents };

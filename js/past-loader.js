@@ -11,14 +11,19 @@ const TONES = ['blue', 'pink', 'sky', 'navy'];
 async function fetchTalks() {
   let res;
   try {
-    res = await fetch('data/talks.json');
+    res = await fetch('data/events.json');
   } catch {
     return { posts: [] };
   }
   if (res.status === 404) return { posts: [] };
   if (!res.ok) throw new Error('Could not load talks data');
   try {
-    return await res.json();
+    const data = await res.json();
+    const now = new Date();
+    const past = (data.events || [])
+      .filter(e => new Date(e.date) < now)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    return { posts: past };
   } catch {
     return { posts: [] };
   }
@@ -69,12 +74,13 @@ async function loadBlogListing() {
 }
 
 function buildFeaturedCard(post, date) {
-  const href    = 'past-talk.html?id=' + encodeURIComponent(post.slug);
-  const title   = escapeHtml(post.title);
-  const author  = escapeHtml(post.speaker || '');
-  const snippet = post.description ? escapeHtml(post.description) : '';
-  const initials = (post.speaker || '')
-    .split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
+  const href     = 'past-talk.html?id=' + encodeURIComponent(post.slug);
+  const title    = escapeHtml(post.title);
+  const author   = escapeHtml(post.speaker || '');
+  const initials = (post.speaker || '').split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
+  const avatar   = post.speakerPhotoUrl
+    ? `<img src="${escapeAttr(post.speakerPhotoUrl)}" alt="${author}" style="width:40px;height:40px;border-radius:999px;object-fit:cover;flex-shrink:0">`
+    : `<div style="width:40px;height:40px;border-radius:999px;background:var(--dse-pink);color:var(--dse-ink);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;flex-shrink:0">${initials}</div>`;
 
   return `
     <a href="${href}" class="dse-blog-featured">
@@ -92,12 +98,11 @@ function buildFeaturedCard(post, date) {
         </div>
       </div>
       <div class="blog-featured-body">
-        ${snippet ? `<p class="body" style="font-size:18px;color:var(--dse-ink)">${snippet}</p>` : ''}
         <div style="display:flex;align-items:center;gap:12px;margin-top:auto">
-          <div style="width:40px;height:40px;border-radius:999px;background:var(--dse-pink);color:var(--dse-ink);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;flex-shrink:0">${initials}</div>
+          ${avatar}
           <div class="meta"><b style="color:var(--dse-ink)">${author}</b>${date ? ' · ' + date : ''}</div>
         </div>
-        <span class="dse-btn primary" style="align-self:flex-start;margin-top:16px;display:inline-flex">Read the post <span class="arr">→</span></span>
+        <span class="dse-btn primary" style="align-self:flex-start;margin-top:16px;display:inline-flex">Watch the talk <span class="arr">→</span></span>
       </div>
     </a>`;
 }
@@ -121,13 +126,12 @@ function buildBlogCard(post, index) {
           <circle cx="200" cy="40"  r="6"   fill="currentColor" opacity="0.5"/>
         </svg>
         <div class="blog-panel-content">
-          <span class="dse-chip" style="${chipStyle}">Post</span>
           <div class="blog-panel-title">${title}</div>
+          ${author ? `<div style="margin-top:8px;font-size:13px;opacity:0.85">${author}</div>` : ''}
         </div>
       </div>
       <div class="blog-card-meta">
-        ${author ? `<b>${author}</b>` : ''}
-        ${date ? `<span>· ${date}</span>` : ''}
+        ${date ? `<span>${date}</span>` : ''}
       </div>
     </a>`;
 }
@@ -186,15 +190,32 @@ async function loadBlogPost() {
         </div>`);
     }
 
+    if (post.description) {
+      chunks.push(`
+        <blockquote class="talk-description">
+          ${escapeHtml(post.description)}
+        </blockquote>`);
+    }
+
     if (post.contentHtml) {
       chunks.push(`<div class="blog-content">${post.contentHtml}</div>`);
     }
 
-    if (post.highlights && post.highlights.length > 0) {
+    if (post.speaker || post.speakerBio) {
+      const initials = (post.speaker || '').split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
+      const avatar   = post.speakerPhotoUrl
+        ? `<img src="${escapeAttr(post.speakerPhotoUrl)}" alt="${escapeHtml(post.speaker || '')}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+        : `<div style="width:80px;height:80px;border-radius:50%;background:var(--dse-pink);color:var(--dse-ink);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;flex-shrink:0">${initials}</div>`;
       chunks.push(`
-        <div class="event-highlights">
-          <h4>Key Takeaways</h4>
-          <ul>${post.highlights.map(h => `<li>${escapeHtml(h)}</li>`).join('')}</ul>
+        <div class="speaker-bio">
+          <h4 class="speaker-bio-heading">About the speaker</h4>
+          <div style="display:flex;gap:20px;align-items:flex-start">
+            ${avatar}
+            <div>
+              ${post.speaker ? `<p style="font-weight:700;margin:0 0 8px">${escapeHtml(post.speaker)}</p>` : ''}
+              ${post.speakerBio ? `<p style="margin:0">${escapeHtml(post.speakerBio)}</p>` : ''}
+            </div>
+          </div>
         </div>`);
     }
 
@@ -223,3 +244,4 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+function escapeAttr(str) { return escapeHtml(str); }

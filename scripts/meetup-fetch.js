@@ -23,14 +23,14 @@ const fs       = require('fs');
 const path     = require('path');
 const fetch    = require('node-fetch');
 
-const ENDPOINT = 'https://api.meetup.com/gql';
+const ENDPOINT = 'https://api.meetup.com/gql-ext';
 const OUTPUT   = path.join(__dirname, '..', 'data', 'events.json');
 
 const QUERY = `
   query ($urlname: String!) {
     groupByUrlname(urlname: $urlname) {
       name
-      upcomingEvents(input: {first: 20}) {
+      events(first: 20, status: ACTIVE) {
         edges {
           node {
             id
@@ -44,7 +44,7 @@ const QUERY = `
               city
               state
             }
-            going { totalCount }
+            rsvps { totalCount }
           }
         }
       }
@@ -104,7 +104,7 @@ function transformEvent(node) {
     location:         formatLocation(node.venue),
     time:             formatTime(node.dateTime),
     registrationLink: node.eventUrl,
-    rsvpCount:        node.going && node.going.totalCount || 0,
+    rsvpCount:        node.rsvps && node.rsvps.totalCount || 0,
     meetupId:         node.id,
   };
 }
@@ -139,7 +139,7 @@ async function main() {
   const group = body.data && body.data.groupByUrlname;
   if (!group) softExit('group not found (check MEETUP_GROUP_URLNAME)');
 
-  const upcoming = (group.upcomingEvents.edges || []).map(e => transformEvent(e.node));
+  const upcoming = (group.events.edges || []).map(e => transformEvent(e.node));
 
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.writeFileSync(OUTPUT, JSON.stringify({

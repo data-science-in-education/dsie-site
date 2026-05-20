@@ -21,7 +21,7 @@ async function fetchMeetupEvents() {
     query ($urlname: String!) {
       groupByUrlname(urlname: $urlname) {
         name
-        upcomingEvents(input: {first: 20}) {
+        upcoming: events(first: 20, status: ACTIVE) {
           edges {
             node {
               id
@@ -32,18 +32,19 @@ async function fetchMeetupEvents() {
               eventUrl
               venue {
                 name
-                address
                 city
                 state
-                postalCode
               }
-              going {
-                totalCount
+              rsvps { totalCount }
+              speakerDetails {
+                name
+                description
+                photo { highResUrl }
               }
             }
           }
         }
-        pastEvents(input: {first: 20}) {
+        past: events(first: 50, status: PAST) {
           edges {
             node {
               id
@@ -52,8 +53,16 @@ async function fetchMeetupEvents() {
               dateTime
               duration
               eventUrl
-              going {
-                totalCount
+              venue {
+                name
+                city
+                state
+              }
+              rsvps { totalCount }
+              speakerDetails {
+                name
+                description
+                photo { highResUrl }
               }
             }
           }
@@ -63,7 +72,7 @@ async function fetchMeetupEvents() {
   `;
 
   try {
-    const response = await fetch('https://api.meetup.com/gql', {
+    const response = await fetch('https://api.meetup.com/gql-ext', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -88,8 +97,8 @@ async function fetchMeetupEvents() {
     }
 
     const group = data.data.groupByUrlname;
-    const upcomingEvents = group.upcomingEvents.edges.map(e => e.node);
-    const pastEvents = group.pastEvents.edges.map(e => e.node);
+    const upcomingEvents = group.upcoming.edges.map(e => e.node);
+    const pastEvents = group.past.edges.map(e => e.node);
 
     console.log(`✓ Found ${upcomingEvents.length} upcoming and ${pastEvents.length} past events`);
 
@@ -182,7 +191,7 @@ function extractHighlights(description) {
 /**
  * Create or update event in Notion
  */
-async function syncEventToNotion(meetupEvent, status) {
+async function syncEventToNotion(meetupEvent) {
   const meetupId = meetupEvent.id;
   const existingPage = await findNotionEventByMeetupId(meetupId);
 
@@ -190,9 +199,21 @@ async function syncEventToNotion(meetupEvent, status) {
   const timeString = formatTime(meetupEvent.dateTime, meetupEvent.duration);
   const highlights = extractHighlights(meetupEvent.description);
 
+  const speaker    = meetupEvent.speakerDetails;
+  const speakerPhotoUrl = speaker?.photo?.highResUrl || null;
+
   const properties = {
     'Title': {
       title: [{ text: { content: meetupEvent.title } }]
+    },
+    'Speaker': {
+      rich_text: [{ text: { content: speaker?.name || '' } }]
+    },
+    'Speaker Bio': {
+      rich_text: [{ text: { content: (speaker?.description || '').substring(0, 2000) } }]
+    },
+    'Speaker Photo URL': {
+      url: speakerPhotoUrl
     },
     'Description': {
       rich_text: [{ text: { content: (meetupEvent.description || '').substring(0, 2000) } }]
@@ -200,23 +221,8 @@ async function syncEventToNotion(meetupEvent, status) {
     'Date': {
       date: { start: meetupEvent.dateTime }
     },
-    'Duration': {
-      number: meetupEvent.duration || 60
-    },
-    'Location': {
-      rich_text: [{ text: { content: location } }]
-    },
-    'Time': {
-      rich_text: [{ text: { content: timeString } }]
-    },
-    'Highlights': {
-      rich_text: [{ text: { content: highlights } }]
-    },
-    'Registration Link': {
+    'Registration URL': {
       url: meetupEvent.eventUrl
-    },
-    'Status': {
-      select: { name: status }
     },
     'Meetup ID': {
       rich_text: [{ text: { content: meetupId } }]
@@ -273,12 +279,12 @@ async function main() {
 
     console.log('\nSyncing upcoming events...');
     for (const event of meetupEvents.upcoming) {
-      await syncEventToNotion(event, 'upcoming');
+      await syncEventToNotion(event);
     }
 
     console.log('\nSyncing past events...');
     for (const event of meetupEvents.past) {
-      await syncEventToNotion(event, 'past');
+      await syncEventToNotion(event);
     }
 
     console.log('\n✓ Sync complete!\n');

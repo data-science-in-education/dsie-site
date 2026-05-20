@@ -334,6 +334,32 @@ button { font: inherit; cursor: pointer; border: 0; }
 .event-highlights ul { padding-left: 1.5rem; }
 .event-highlights li { padding: .4rem 0; }
 
+blockquote.talk-description {
+  border-left: 4px solid var(--dse-blue);
+  margin: 0 0 2rem;
+  padding: .75rem 1.25rem;
+  background: var(--dse-cream);
+  border-radius: 0 8px 8px 0;
+  font-size: 1.05rem;
+  color: var(--dse-ink);
+  line-height: 1.6;
+}
+
+.speaker-bio {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  background: var(--dse-cream);
+  border-radius: 12px;
+}
+.speaker-bio-heading {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin: 0 0 1rem;
+  color: var(--dse-ink);
+  opacity: .6;
+}
+
 /* ============================================================
    Responsive
    ============================================================ */

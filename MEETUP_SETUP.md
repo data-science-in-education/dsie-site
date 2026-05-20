@@ -57,42 +57,40 @@ Open the approved client's **Settings** page. Note:
 We use the **self-signed JWT** flow (no browser involved, suitable for
 build-time scripts).
 
-### 4a. Generate an RSA keypair
+### 4a. Create a signing key on Meetup
+
+In the OAuth client's **Settings** page, find the **Signing keys** section and
+click **Create signing key**. Meetup generates the RSA keypair for you:
+
+- It stores the public key.
+- It offers the **private key** as a one-time download — save this file now as
+  `meetup-private.pem` and keep it out of git.
+- It shows a **Signing Key ID** in the Active keys list — note this value.
+
+### 4b. Exchange a signed JWT for a bearer token
+
+Add these three values to your `.env`:
+
+```
+MEETUP_CLIENT_KEY=<Client Key from step 3>
+MEETUP_SIGNING_KEY_ID=<Signing Key ID from step 4a>
+MEETUP_MEMBER_ID=<your numeric Meetup member ID>
+```
+
+Your member ID is the number in the URL when you view your Meetup profile
+(`meetup.com/members/<this-number>`).
+
+Then run:
 
 ```bash
-openssl genrsa -out meetup-private.pem 2048
-openssl rsa -in meetup-private.pem -pubout -out meetup-public.pem
+npm run mint-meetup-token
 ```
 
-Keep `meetup-private.pem` out of git — it should never be committed.
+The script (`scripts/meetup-mint-token.js`) builds and signs a JWT using
+`meetup-private.pem` and exchanges it for a bearer token. Copy the printed
+`MEETUP_OAUTH_TOKEN=...` line into your `.env`.
 
-### 4b. Register the public key with Meetup
-
-In the OAuth client's Settings page there's a **Signing keys** section.
-Paste the contents of `meetup-public.pem` and save. Meetup gives back a
-**Signing Key ID** (a short alphanumeric string).
-
-### 4c. Exchange a signed JWT for a bearer token
-
-POST a JWT (signed with the private key, `kid` header = Signing Key ID)
-to `https://secure.meetup.com/oauth2/access` with these claims:
-
-```
-iss: <Client Key>
-sub: <Meetup member ID of the organiser account>
-aud: api.meetup.com
-exp: <now + 120 seconds>
-```
-
-Meetup returns an `access_token` (good for ~1 hour) and a
-`refresh_token`. The `access_token` is what goes into
-`MEETUP_OAUTH_TOKEN`.
-
-> **Note**: `scripts/meetup-fetch.js` currently expects a ready-made
-> bearer token in `MEETUP_OAUTH_TOKEN`. For continuous deploys we'll
-> want the script itself to mint a fresh token on each run from the
-> Client Key + Signing Key ID + private key — that's a follow-up task
-> tracked in the repo TODOs.
+The token is valid for ~1 hour. Re-run the command whenever it expires.
 
 ## 5. Configure environment
 

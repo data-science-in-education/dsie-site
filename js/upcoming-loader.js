@@ -23,7 +23,8 @@ async function fetchEvents() {
   if (res.status === 404) return [];
   if (!res.ok) throw new Error('Could not load events');
   const data = await res.json().catch(() => ({}));
-  return Array.isArray(data.upcoming) ? data.upcoming : [];
+  const now = new Date();
+  return (data.events || []).filter(e => new Date(e.date) >= now);
 }
 
 function renderRow(e) {
@@ -34,7 +35,7 @@ function renderRow(e) {
   const day      = escapeHtml(e.day || '');
   const month    = escapeHtml(e.month || '');
   const year     = escapeHtml(e.year || '');
-  const rsvp     = e.registrationLink || 'https://www.meetup.com/data-science-in-education/';
+  const rsvp     = e.registrationUrl || 'https://www.meetup.com/data-science-in-education/';
 
   const metaParts = [speaker, time, location].filter(Boolean).join(' · ');
 
