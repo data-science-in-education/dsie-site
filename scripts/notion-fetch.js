@@ -179,17 +179,20 @@ async function downloadSpeakerPhoto(url, speakerName) {
   return `/images/speakers/${filename}`;
 }
 
-// Resolve speaker photo URL: check Notion "Speaker Photo" (Files & media) first,
+// Resolve speaker photo: check Notion "Speaker Photo" (Files & media) first,
 // then fall back to the plain "Speaker Photo URL" text field.
-// Notion-hosted files are downloaded locally so the signed URL never expires.
+// All photos are downloaded to images/speakers/ at build time so no runtime
+// dependency on external CDNs or expiring Notion S3 URLs.
 async function getSpeakerPhotoUrl(props, speakerName) {
   const filesProp = props['Speaker Photo'];
   if (filesProp?.type === 'files' && filesProp.files?.length > 0) {
     const file = filesProp.files[0];
-    if (file.type === 'external') return file.external.url;
-    if (file.type === 'file')     return downloadSpeakerPhoto(file.file.url, speakerName);
+    const url = file.type === 'file' ? file.file.url : file.external?.url;
+    if (url) return downloadSpeakerPhoto(url, speakerName);
   }
-  return getPropertyValue(props['Speaker Photo URL']);
+  const urlField = getPropertyValue(props['Speaker Photo URL']);
+  if (urlField) return downloadSpeakerPhoto(urlField, speakerName);
+  return '';
 }
 
 /**
