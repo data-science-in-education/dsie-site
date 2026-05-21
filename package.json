@@ -7,7 +7,6 @@
     "mint-meetup-token": "node scripts/meetup-mint-token.js",
     "fetch-meetup": "node scripts/meetup-fetch.js",
     "fetch-notion": "node scripts/notion-fetch.js",
-    "sync-meetup":  "node scripts/meetup-sync.js",
     "og":           "node scripts/og-image.js",
     "build-data":   "npm run fetch-notion && npm run og",
     "serve":        "python3 -m http.server 8000",

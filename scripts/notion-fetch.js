@@ -1,8 +1,14 @@
 /**
- * Notion Data Fetcher
+ * Notion Data Fetcher — primary data pipeline
  *
- * Fetches events from Notion database and saves them as JSON files.
- * Also generates videos.json from past events that have YouTube URLs.
+ * Notion is the source of truth for all events (past and upcoming).
+ * Run this to regenerate data/events.json:
+ *   npm run fetch-notion
+ *
+ * meetup-fetch.js is a lightweight fallback that pulls upcoming events
+ * directly from Meetup (no content, no speaker data). meetup-sync.js
+ * was a one-time setup tool that pushed Meetup data into Notion; it
+ * lives in scripts/archive/ and is no longer part of the workflow.
  */
 
 require('dotenv').config();

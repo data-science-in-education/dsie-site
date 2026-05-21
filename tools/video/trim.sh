@@ -90,6 +90,16 @@ if not keeps:
     print("ERROR: no keep segments found in cuts.json", file=sys.stderr)
     sys.exit(1)
 
+# Sort segments by start time and validate for overlaps / bad ranges
+keeps = sorted(keeps, key=lambda k: k['start'])
+for i, k in enumerate(keeps):
+    if k['end'] <= k['start']:
+        print(f"ERROR: segment {i+1} has end <= start ({k['start']}s → {k['end']}s)", file=sys.stderr)
+        sys.exit(1)
+    if i > 0 and k['start'] < keeps[i-1]['end']:
+        print(f"ERROR: segment {i+1} overlaps segment {i} ({keeps[i-1]['end']}s vs {k['start']}s)", file=sys.stderr)
+        sys.exit(1)
+
 os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)
 
 scale_filter = (
@@ -98,7 +108,8 @@ scale_filter = (
     f"setsar=1,fps={FPS}"
 )
 
-print(f"trim: {len(keeps)} segment(s) from {input_file}")
+total_kept = sum(k['end'] - k['start'] for k in keeps)
+print(f"trim: {len(keeps)} segment(s) from {input_file}  (keeping {total_kept:.1f}s)")
 for i, k in enumerate(keeps):
     dur = k['end'] - k['start']
     print(f"  [{i+1}] {k['start']:.1f}s → {k['end']:.1f}s  ({dur:.1f}s)")
@@ -151,5 +162,12 @@ if result.returncode != 0:
     sys.exit(result.returncode)
 
 size_mb = os.path.getsize(out_file) / (1024 * 1024)
-print(f"\nDone: {out_file}  ({size_mb:.0f} MB)")
+# Get output duration via ffprobe
+probe = subprocess.run(
+    ['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
+     '-of', 'default=noprint_wrappers=1:nokey=1', out_file],
+    capture_output=True, text=True
+)
+out_dur = float(probe.stdout.strip()) if probe.returncode == 0 and probe.stdout.strip() else total_kept
+print(f"\nDone: {out_file}  ({size_mb:.0f} MB, {out_dur:.1f}s kept of {total_kept:.1f}s planned)")
 PYEOF
