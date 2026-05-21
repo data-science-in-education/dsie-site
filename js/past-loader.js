@@ -29,16 +29,28 @@ async function fetchTalks() {
   }
 }
 
+// Returns an <img> or initials <div> for a speaker. size defaults to 32.
+function speakerAvatar(speaker, photoUrl, size) {
+  const sz       = size || 32;
+  const initials = (speaker || '').split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
+  const fs       = Math.round(sz * 0.35);
+  if (photoUrl) {
+    return `<img src="${escapeAttr(photoUrl)}" alt="${escapeHtml(speaker || '')}" class="talk-avatar" style="--sz:${sz}px">`;
+  }
+  if (initials) {
+    return `<div class="talk-avatar talk-avatar-initials" style="--sz:${sz}px;font-size:${fs}px">${initials}</div>`;
+  }
+  return '';
+}
+
 // ----------------------------------------------------------------
 // Past-talks listing page
-// (DOM IDs and class names still carry the "blog-" prefix from the
-// pre-rename version; element IDs are coordinated with past.html
-// and past-talk.html so any renaming needs to happen there too.)
 // ----------------------------------------------------------------
 async function loadBlogListing() {
-  const grid      = document.getElementById('blog-grid');
-  const emptyEl   = document.getElementById('blog-empty');
+  const grid       = document.getElementById('blog-grid');
+  const emptyEl    = document.getElementById('blog-empty');
   const featuredEl = document.getElementById('blog-featured');
+  const filterEl   = document.getElementById('year-filter');
 
   try {
     const data  = await fetchTalks();
@@ -52,9 +64,9 @@ async function loadBlogListing() {
       return;
     }
 
-    // Featured post (first post)
-    if (featuredEl && posts.length > 0) {
-      const f = posts[0];
+    // Featured post (most recent)
+    if (featuredEl) {
+      const f    = posts[0];
       const date = [f.day, f.month, f.year].filter(Boolean).join(' ');
       featuredEl.innerHTML = buildFeaturedCard(f, date);
     }
@@ -65,6 +77,24 @@ async function loadBlogListing() {
       if (emptyEl) emptyEl.style.display = 'block';
     } else {
       grid.innerHTML = rest.map((post, i) => buildBlogCard(post, i + 1)).join('');
+
+      // Year filter pills
+      if (filterEl) {
+        const years = [...new Set(rest.map(p => p.year).filter(Boolean))].sort((a, b) => b - a);
+        if (years.length > 1) {
+          filterEl.innerHTML = buildYearFilter(years);
+          filterEl.addEventListener('click', e => {
+            const pill = e.target.closest('.year-pill');
+            if (!pill) return;
+            filterEl.querySelectorAll('.year-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            const year = pill.dataset.year;
+            grid.querySelectorAll('.dse-blog-card').forEach(card => {
+              card.style.display = (!year || card.dataset.year === year) ? '' : 'none';
+            });
+          });
+        }
+      }
     }
 
   } catch (err) {
@@ -73,14 +103,19 @@ async function loadBlogListing() {
   }
 }
 
+function buildYearFilter(years) {
+  const pills = [
+    '<button class="year-pill active" data-year="">All</button>',
+    ...years.map(y => `<button class="year-pill" data-year="${y}">${y}</button>`),
+  ].join('');
+  return `<div class="year-filter-inner">${pills}</div>`;
+}
+
 function buildFeaturedCard(post, date) {
-  const href     = 'past-talk.html?id=' + encodeURIComponent(post.slug);
-  const title    = escapeHtml(post.title);
-  const author   = escapeHtml(post.speaker || '');
-  const initials = (post.speaker || '').split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
-  const avatar   = post.speakerPhotoUrl
-    ? `<img src="${escapeAttr(post.speakerPhotoUrl)}" alt="${author}" style="width:40px;height:40px;border-radius:999px;object-fit:cover;flex-shrink:0">`
-    : `<div style="width:40px;height:40px;border-radius:999px;background:var(--dse-pink);color:var(--dse-ink);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;flex-shrink:0">${initials}</div>`;
+  const href   = 'past-talk.html?id=' + encodeURIComponent(post.slug);
+  const title  = escapeHtml(post.title);
+  const author = escapeHtml(post.speaker || '');
+  const avatar = speakerAvatar(post.speaker, post.speakerPhotoUrl, 40);
 
   return `
     <a href="${href}" class="dse-blog-featured">
@@ -105,18 +140,15 @@ function buildFeaturedCard(post, date) {
 }
 
 function buildBlogCard(post, index) {
-  const href     = 'past-talk.html?id=' + encodeURIComponent(post.slug);
-  const tone     = TONES[index % TONES.length];
-  const title    = escapeHtml(post.title);
-  const author   = escapeHtml(post.speaker || '');
-  const date     = [post.day, post.month, post.year].filter(Boolean).join(' ');
-  const initials = (post.speaker || '').split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
-  const avatar   = post.speakerPhotoUrl
-    ? `<img src="${escapeAttr(post.speakerPhotoUrl)}" alt="${author}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`
-    : initials ? `<div style="width:32px;height:32px;border-radius:50%;background:var(--dse-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;flex-shrink:0">${initials}</div>` : '';
+  const href   = 'past-talk.html?id=' + encodeURIComponent(post.slug);
+  const tone   = TONES[index % TONES.length];
+  const title  = escapeHtml(post.title);
+  const author = escapeHtml(post.speaker || '');
+  const date   = [post.day, post.month, post.year].filter(Boolean).join(' ');
+  const avatar = speakerAvatar(post.speaker, post.speakerPhotoUrl, 32);
 
   return `
-    <a href="${href}" class="dse-blog-card">
+    <a href="${href}" class="dse-blog-card" data-year="${post.year || ''}">
       <div class="dse-blog-panel ${tone}">
         <svg class="blog-panel-decor" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <circle cx="320" cy="60"  r="120" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
@@ -151,8 +183,6 @@ async function loadBlogPost() {
 
     document.title = post.title + ' — Data Science in Education';
 
-    // Swap in the per-talk OG image when available (generated by
-    // scripts/og-image.js). Crawlers that execute JS will pick it up.
     const ogPath = `/images/og/talk-${post.slug}.png`;
     const ogAbs  = window.location.origin + ogPath;
     document.querySelectorAll(
@@ -189,11 +219,8 @@ async function loadBlogPost() {
     }
 
     if (post.description) {
-      const initials = (post.speaker || '').split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
-      const avatar   = post.speakerPhotoUrl
-        ? `<img src="${escapeAttr(post.speakerPhotoUrl)}" alt="${escapeHtml(post.speaker || '')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0">`
-        : initials ? `<div style="width:40px;height:40px;border-radius:50%;background:var(--dse-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;flex-shrink:0">${initials}</div>` : '';
-      const attribution = post.speaker ? `
+      const avatar       = speakerAvatar(post.speaker, post.speakerPhotoUrl, 40);
+      const attribution  = post.speaker ? `
         <figcaption class="talk-quote-attr">
           ${avatar}
           <span class="talk-quote-name">${escapeHtml(post.speaker)}</span>

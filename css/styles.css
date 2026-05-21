@@ -372,6 +372,51 @@ button { font: inherit; cursor: pointer; border: 0; }
   margin: 0 0 2rem;
 }
 
+.talk-avatar {
+  width: var(--sz, 32px);
+  height: var(--sz, 32px);
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.talk-avatar-initials {
+  background: var(--dse-blue);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+}
+
+.year-filter-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 2rem;
+}
+.year-pill {
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--dse-line);
+  background: transparent;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--dse-muted);
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.year-pill:hover {
+  border-color: var(--dse-blue);
+  color: var(--dse-blue);
+}
+.year-pill.active {
+  background: var(--dse-blue);
+  border-color: var(--dse-blue);
+  color: #fff;
+}
+
 /* ============================================================
    Responsive
    ============================================================ */

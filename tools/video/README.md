@@ -94,7 +94,7 @@ automatically.
 # 2. Regenerate the title card (1920x1080 PNG)
 npm run og
 #    Produces images/video-cards/talk-<slug>.png — pulled from
-#    data/talks.json, composites the headshot if present.
+#    data/events.json, composites the headshot if present.
 
 # 3. Trim the raw recording (browser tool)
 #    Open tools/video/trim.html in Chrome. Load the raw MP4, mark what
