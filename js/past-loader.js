@@ -91,9 +91,6 @@ function buildFeaturedCard(post, date) {
           <circle cx="200" cy="40"  r="8"   fill="#F9ABB9"/>
         </svg>
         <div style="position:relative;z-index:2">
-          <span class="dse-chip" style="background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3)">Featured</span>
-        </div>
-        <div style="position:relative;z-index:2">
           <h2 class="blog-featured-title">${title}</h2>
         </div>
       </div>
@@ -108,14 +105,15 @@ function buildFeaturedCard(post, date) {
 }
 
 function buildBlogCard(post, index) {
-  const href    = 'past-talk.html?id=' + encodeURIComponent(post.slug);
-  const tone    = TONES[index % TONES.length];
-  const title   = escapeHtml(post.title);
-  const author  = escapeHtml(post.speaker || '');
-  const date    = [post.day, post.month, post.year].filter(Boolean).join(' ');
-  const chipStyle = (tone === 'blue' || tone === 'navy')
-    ? 'background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3)'
-    : 'background:rgba(255,255,255,.18);color:var(--dse-ink);border-color:rgba(0,0,0,.12)';
+  const href     = 'past-talk.html?id=' + encodeURIComponent(post.slug);
+  const tone     = TONES[index % TONES.length];
+  const title    = escapeHtml(post.title);
+  const author   = escapeHtml(post.speaker || '');
+  const date     = [post.day, post.month, post.year].filter(Boolean).join(' ');
+  const initials = (post.speaker || '').split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
+  const avatar   = post.speakerPhotoUrl
+    ? `<img src="${escapeAttr(post.speakerPhotoUrl)}" alt="${author}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+    : initials ? `<div style="width:32px;height:32px;border-radius:50%;background:var(--dse-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;flex-shrink:0">${initials}</div>` : '';
 
   return `
     <a href="${href}" class="dse-blog-card">
@@ -127,11 +125,11 @@ function buildBlogCard(post, index) {
         </svg>
         <div class="blog-panel-content">
           <div class="blog-panel-title">${title}</div>
-          ${author ? `<div style="margin-top:8px;font-size:13px;opacity:0.85">${author}</div>` : ''}
         </div>
       </div>
       <div class="blog-card-meta">
-        ${date ? `<span>${date}</span>` : ''}
+        ${author ? `<div style="display:flex;align-items:center;gap:8px">${avatar}<span>${author}</span></div>` : ''}
+        ${date ? `<span style="margin-left:auto">${date}</span>` : ''}
       </div>
     </a>`;
 }
@@ -191,32 +189,28 @@ async function loadBlogPost() {
     }
 
     if (post.description) {
+      const initials = (post.speaker || '').split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
+      const avatar   = post.speakerPhotoUrl
+        ? `<img src="${escapeAttr(post.speakerPhotoUrl)}" alt="${escapeHtml(post.speaker || '')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+        : initials ? `<div style="width:40px;height:40px;border-radius:50%;background:var(--dse-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;flex-shrink:0">${initials}</div>` : '';
+      const attribution = post.speaker ? `
+        <figcaption class="talk-quote-attr">
+          ${avatar}
+          <span class="talk-quote-name">${escapeHtml(post.speaker)}</span>
+        </figcaption>` : '';
       chunks.push(`
-        <blockquote class="talk-description">
-          ${escapeHtml(post.description)}
-        </blockquote>`);
+        <figure class="talk-quote">
+          <blockquote>${escapeHtml(post.description)}</blockquote>
+          ${attribution}
+        </figure>`);
     }
 
     if (post.contentHtml) {
       chunks.push(`<div class="blog-content">${post.contentHtml}</div>`);
     }
 
-    if (post.speaker || post.speakerBio) {
-      const initials = (post.speaker || '').split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
-      const avatar   = post.speakerPhotoUrl
-        ? `<img src="${escapeAttr(post.speakerPhotoUrl)}" alt="${escapeHtml(post.speaker || '')}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;flex-shrink:0">`
-        : `<div style="width:80px;height:80px;border-radius:50%;background:var(--dse-pink);color:var(--dse-ink);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;flex-shrink:0">${initials}</div>`;
-      chunks.push(`
-        <div class="speaker-bio">
-          <h4 class="speaker-bio-heading">About the speaker</h4>
-          <div style="display:flex;gap:20px;align-items:flex-start">
-            ${avatar}
-            <div>
-              ${post.speaker ? `<p style="font-weight:700;margin:0 0 8px">${escapeHtml(post.speaker)}</p>` : ''}
-              ${post.speakerBio ? `<p style="margin:0">${escapeHtml(post.speakerBio)}</p>` : ''}
-            </div>
-          </div>
-        </div>`);
+    if (post.speakerBio) {
+      chunks.push(`<p class="talk-speaker-bio">${escapeHtml(post.speakerBio)}</p>`);
     }
 
     if (content) content.innerHTML = chunks.join('');
