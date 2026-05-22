@@ -5,10 +5,6 @@
  * Run this to regenerate data/events.json:
  *   npm run fetch-notion
  *
- * meetup-fetch.js is a lightweight fallback that pulls upcoming events
- * directly from Meetup (no content, no speaker data). meetup-sync.js
- * was a one-time setup tool that pushed Meetup data into Notion; it
- * lives in scripts/archive/ and is no longer part of the workflow.
  */
 
 require('dotenv').config();
@@ -257,9 +253,6 @@ async function fetchEvents() {
       };
     }));
 
-    // Separate upcoming and past events (Meetup is the source of truth for
-    // data/events.json; this in-memory split is only used to filter what we
-    // pass to generateTalkPages).
     const now = new Date();
     const upcomingEvents = events.filter(e => new Date(e.date) >= now);
     const pastEvents = events.filter(e => new Date(e.date) < now);
@@ -287,6 +280,38 @@ async function enrichPastEvents(pastEvents) {
     const contentHtml = await fetchPageContentHtml(event.id);
     return { ...event, contentHtml };
   }));
+}
+
+/**
+ * Rewrite sitemap.xml with static pages + one URL per published past talk.
+ */
+function writeSitemap(pastEvents) {
+  const BASE = 'https://datascienceineducation.events';
+  const statics = [
+    { loc: `${BASE}/`,              changefreq: 'weekly',  priority: '1.0' },
+    { loc: `${BASE}/upcoming`,      changefreq: 'weekly',  priority: '0.9' },
+    { loc: `${BASE}/past`,          changefreq: 'weekly',  priority: '0.9' },
+    { loc: `${BASE}/about`,         changefreq: 'monthly', priority: '0.6' },
+  ];
+  const talks = pastEvents.map(e => ({
+    loc:        `${BASE}/past-talk?id=${encodeURIComponent(e.slug)}`,
+    lastmod:    e.date ? e.date.split('T')[0] : undefined,
+    changefreq: 'monthly',
+    priority:   '0.7',
+  }));
+  const all = [...statics, ...talks];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${all.map(u => `  <url>
+    <loc>${u.loc}</loc>${u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : ''}
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
+</urlset>
+`;
+  const sitemapPath = path.join(__dirname, '../sitemap.xml');
+  fs.writeFileSync(sitemapPath, xml);
+  console.log(`✓ Wrote ${all.length} URL(s) to sitemap.xml`);
 }
 
 /**
@@ -319,6 +344,7 @@ async function main() {
     }, null, 2));
 
     console.log(`✓ Wrote ${allEvents.length} event(s) to data/events.json`);
+    writeSitemap(enrichedPast);
     console.log('\n✓ Notion data updated\n');
   } catch (error) {
     console.error('\n✗ Error:', error.message);

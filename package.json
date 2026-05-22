@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "mint-meetup-token": "node scripts/meetup-mint-token.js",
-    "fetch-meetup": "node scripts/meetup-fetch.js",
     "fetch-notion": "node scripts/notion-fetch.js",
     "og":           "node scripts/og-image.js",
     "build-data":   "npm run fetch-notion && npm run og",

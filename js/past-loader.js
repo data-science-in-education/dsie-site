@@ -57,7 +57,8 @@ async function loadBlogListing() {
     const posts = data.posts || [];
 
     if (posts.length === 0) {
-      if (emptyEl)    emptyEl.style.display = 'block';
+      if (grid)    grid.innerHTML = '';
+      if (emptyEl) emptyEl.style.display = 'block';
       if (featuredEl) featuredEl.style.display = 'none';
       const section = document.getElementById('featured-section');
       if (section) section.style.display = 'none';
@@ -74,24 +75,41 @@ async function loadBlogListing() {
     // Remaining posts → grid
     const rest = posts.slice(1);
     if (rest.length === 0) {
+      if (grid)    grid.innerHTML = '';
       if (emptyEl) emptyEl.style.display = 'block';
     } else {
       grid.innerHTML = rest.map((post, i) => buildBlogCard(post, i + 1)).join('');
 
-      // Year filter pills
+      // Search + year filter
       if (filterEl) {
         const years = [...new Set(rest.map(p => p.year).filter(Boolean))].sort((a, b) => b - a);
-        if (years.length > 1) {
-          filterEl.innerHTML = buildYearFilter(years);
-          filterEl.addEventListener('click', e => {
-            const pill = e.target.closest('.year-pill');
-            if (!pill) return;
-            filterEl.querySelectorAll('.year-pill').forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
-            const year = pill.dataset.year;
-            grid.querySelectorAll('.dse-blog-card').forEach(card => {
-              card.style.display = (!year || card.dataset.year === year) ? '' : 'none';
-            });
+        filterEl.innerHTML = buildFilter(years);
+
+        let activeYear = '';
+        let searchQuery = '';
+
+        function applyFilter() {
+          grid.querySelectorAll('.dse-blog-card').forEach(card => {
+            const yearOk   = !activeYear || card.dataset.year === activeYear;
+            const searchOk = !searchQuery || card.dataset.search.includes(searchQuery);
+            card.style.display = (yearOk && searchOk) ? '' : 'none';
+          });
+        }
+
+        filterEl.addEventListener('click', e => {
+          const pill = e.target.closest('.year-pill');
+          if (!pill) return;
+          filterEl.querySelectorAll('.year-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          activeYear = pill.dataset.year;
+          applyFilter();
+        });
+
+        const searchInput = filterEl.querySelector('.past-search');
+        if (searchInput) {
+          searchInput.addEventListener('input', () => {
+            searchQuery = searchInput.value.toLowerCase().trim();
+            applyFilter();
           });
         }
       }
@@ -103,12 +121,16 @@ async function loadBlogListing() {
   }
 }
 
-function buildYearFilter(years) {
-  const pills = [
+function buildFilter(years) {
+  const pills = years.length > 1 ? [
     '<button class="year-pill active" data-year="">All</button>',
     ...years.map(y => `<button class="year-pill" data-year="${y}">${y}</button>`),
-  ].join('');
-  return `<div class="year-filter-inner">${pills}</div>`;
+  ].join('') : '';
+  const yearRow = pills ? `<div class="year-filter-inner">${pills}</div>` : '';
+  return `<div class="past-filter-row">
+    <input class="past-search" type="search" placeholder="Search talks…" aria-label="Search talks">
+    ${yearRow}
+  </div>`;
 }
 
 function buildFeaturedCard(post, date) {
@@ -140,15 +162,16 @@ function buildFeaturedCard(post, date) {
 }
 
 function buildBlogCard(post, index) {
-  const href   = 'past-talk.html?id=' + encodeURIComponent(post.slug);
-  const tone   = TONES[index % TONES.length];
-  const title  = escapeHtml(post.title);
-  const author = escapeHtml(post.speaker || '');
-  const date   = [post.day, post.month, post.year].filter(Boolean).join(' ');
-  const avatar = speakerAvatar(post.speaker, post.speakerPhotoUrl, 32);
+  const href       = 'past-talk.html?id=' + encodeURIComponent(post.slug);
+  const tone       = TONES[index % TONES.length];
+  const title      = escapeHtml(post.title);
+  const author     = escapeHtml(post.speaker || '');
+  const date       = [post.day, post.month, post.year].filter(Boolean).join(' ');
+  const avatar     = speakerAvatar(post.speaker, post.speakerPhotoUrl, 32);
+  const searchText = escapeHtml([post.title, post.speaker].filter(Boolean).join(' ').toLowerCase());
 
   return `
-    <a href="${href}" class="dse-blog-card" data-year="${post.year || ''}">
+    <a href="${href}" class="dse-blog-card" data-year="${post.year || ''}" data-search="${searchText}">
       <div class="dse-blog-panel ${tone}">
         <svg class="blog-panel-decor" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <circle cx="320" cy="60"  r="120" fill="none" stroke="currentColor" stroke-width="3" opacity="0.5"/>
@@ -182,6 +205,14 @@ async function loadBlogPost() {
     if (!post) { showPostError('Post not found.'); return; }
 
     document.title = post.title + ' — Data Science in Education';
+
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.setAttribute('href', location.href);
+    document.querySelectorAll('meta[property="og:url"]').forEach(el => el.setAttribute('content', location.href));
+    document.querySelectorAll('meta[property="og:title"], meta[name="twitter:title"]').forEach(el => el.setAttribute('content', post.title + ' — Data Science in Education'));
+    document.querySelectorAll('meta[property="og:description"], meta[name="twitter:description"]').forEach(el => {
+      if (post.description) el.setAttribute('content', post.description.slice(0, 200));
+    });
 
     const ogPath = `/images/og/talk-${post.slug}.png`;
     const ogAbs  = window.location.origin + ogPath;
@@ -242,10 +273,66 @@ async function loadBlogPost() {
 
     if (content) content.innerHTML = chunks.join('');
 
+    // Structured data
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Event',
+      name: post.title,
+      startDate: post.date,
+      eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode',
+      eventStatus: 'https://schema.org/EventScheduled',
+      organizer: { '@type': 'Organization', name: 'Data Science in Education', url: 'https://datascienceineducation.events' },
+    };
+    if (post.description) schema.description = post.description.slice(0, 500);
+    if (post.speaker)     schema.performer    = { '@type': 'Person', name: post.speaker };
+    if (post.youtubeUrl)  schema.recordedIn   = { '@type': 'VideoObject', url: post.youtubeUrl, name: post.title };
+    const ld = document.createElement('script');
+    ld.type = 'application/ld+json';
+    ld.textContent = JSON.stringify(schema);
+    document.head.appendChild(ld);
+
+    // Next / prev navigation
+    const allPosts = data.posts;
+    const idx    = allPosts.findIndex(p => p.slug === slug);
+    const newer  = allPosts[idx - 1];
+    const older  = allPosts[idx + 1];
+    const navEl  = document.getElementById('post-nav');
+    if (navEl && (newer || older)) navEl.innerHTML = buildPostNav(newer, older);
+
+    // Share button
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
+      shareBtn.style.display = '';
+      shareBtn.addEventListener('click', async () => {
+        const url   = location.href;
+        const title = post.title;
+        if (navigator.share) {
+          try { await navigator.share({ title, url }); } catch { /* user cancelled */ }
+        } else {
+          await navigator.clipboard.writeText(url);
+          const orig = shareBtn.textContent;
+          shareBtn.textContent = 'Link copied!';
+          setTimeout(() => { shareBtn.innerHTML = 'Share <span class="arr">↗</span>'; }, 2000);
+        }
+      });
+    }
+
   } catch (err) {
     console.error('Blog post load error:', err);
     showPostError('Could not load this post.');
   }
+}
+
+function buildPostNav(newer, older) {
+  const link = (post, cls, dir) => post ? `
+    <a href="past-talk.html?id=${encodeURIComponent(post.slug)}" class="post-nav-link ${cls}">
+      <span class="post-nav-dir">${dir}</span>
+      <span class="post-nav-title">${escapeHtml(post.title)}</span>
+    </a>` : '<div></div>';
+  return `<nav class="post-nav" aria-label="Talk navigation">
+    ${link(newer, 'post-nav-newer', '← Newer')}
+    ${link(older, 'post-nav-older', 'Older →')}
+  </nav>`;
 }
 
 function showPostError(message) {

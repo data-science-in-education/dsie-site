@@ -12,7 +12,7 @@ past-talk data from Notion and renders OG images.
 | ------------------- | ------------------------------------------------------- |
 | `/`                 | Home — partners, upcoming/past previews                 |
 | `/upcoming.html`    | Upcoming talks (from `data/events.json`)                |
-| `/past.html`        | Past talks listing (from `data/talks.json`)             |
+| `/past.html`        | Past talks listing (from `data/events.json`)            |
 | `/past-talk.html`   | Single past-talk page — video + write-up                |
 | `/about.html`       | About + organisers                                      |
 
@@ -31,12 +31,10 @@ past-talk data from Notion and renders OG images.
 │   ├── upcoming-loader.js   # renders upcoming list from data/events.json
 │   └── past-loader.js       # renders past-talks listing + single-talk pages
 ├── scripts/
-│   ├── notion-fetch.js      # pulls events from Notion -> data/*.json
-│   ├── meetup-sync.js       # syncs Meetup.com events into Notion (Pro only)
+│   ├── notion-fetch.js      # pulls all events from Notion → data/events.json
 │   └── og-image.js          # renders 1200x630 PNGs into images/og/
 ├── data/                    # generated; gitignored
-│   ├── events.json          # upcoming + past
-│   └── talks.json           # past-talk pages (Notion page bodies)
+│   └── events.json          # all events (upcoming + past with content)
 ├── images/
 │   ├── logos/               # DSE-badge.svg, DSE-logo-*.svg
 │   ├── organisers/          # simon.png, digory.jpg
@@ -54,9 +52,7 @@ git clone https://github.com/data-science-in-education/dsie-site.git
 cd dsie-site
 npm install
 
-# Set up data sources:
-#   - Meetup (upcoming events) → MEETUP_SETUP.md
-#   - Notion (past-talk write-ups) → NOTION_SETUP.md
+# Set up Notion → NOTION_SETUP.md
 cp .env.example .env
 # ... edit .env ...
 
@@ -66,30 +62,23 @@ npm run dev          # = build-data + serve at http://localhost:8000
 
 ## Available scripts
 
-| Script                  | What it does                                                                |
-| ----------------------- | --------------------------------------------------------------------------- |
-| `npm run fetch-meetup`  | Pull upcoming events from Meetup → `data/events.json` (the upcoming page)   |
-| `npm run fetch-notion`  | Pull past-talk write-ups from Notion → `data/talks.json` (the past page)    |
-| `npm run sync-meetup`   | One-way sync Meetup events into Notion (for adding speaker / write-up)      |
-| `npm run og`            | Regenerate `images/og/*.png` (site default + per-page + per-talk)           |
-| `npm run build-data`    | `fetch-meetup` + `fetch-notion` + `og` in one step                          |
-| `npm run serve`         | Static file server on :8000                                                 |
-| `npm run dev`           | `build-data` + `serve`                                                      |
+| Script                  | What it does                                                              |
+| ----------------------- | ------------------------------------------------------------------------- |
+| `npm run fetch-notion`  | Pull all events from Notion → `data/events.json`                          |
+| `npm run og`            | Regenerate `images/og/*.png` (site default + per-page + per-talk)         |
+| `npm run build-data`    | `fetch-notion` + `og`                                                     |
+| `npm run serve`         | Static file server on :8000                                               |
+| `npm run dev`           | `build-data` + `serve`                                                    |
 
 ### Data pipeline
 
 ```
-Meetup ─ fetch-meetup ─▶ data/events.json  ─▶ upcoming.html
-   │
-   └─── sync-meetup ──▶ Notion (enrich: Speaker, Blog content, YouTube)
-                          │
-                          └─ fetch-notion ─▶ data/talks.json ─▶ past.html / past-talk.html
+Notion ── fetch-notion ──▶ data/events.json ──▶ all pages
 ```
 
-Meetup is the source of truth for upcoming events. Notion is the source
-of truth for past-talk pages (the recording, the write-up, the speaker
-bio). Both fetch scripts soft-exit if their credentials aren't set, so
-Vercel builds without secrets still produce a usable empty-state site.
+Notion is the source of truth. Both scripts soft-exit when credentials
+aren't set, so a Vercel build without secrets still produces a usable
+empty-state site.
 
 ## Deploying
 
@@ -110,7 +99,7 @@ branch to a preview URL.
 
 1. In Notion, add a row to the Events database — see
    [NOTION_SETUP.md](./NOTION_SETUP.md) for the schema.
-2. For past talks: tick `Blog Published`, paste YouTube URL into
+2. For past talks: tick `Published`, paste YouTube URL into
    `YouTube URL`, write up the talk in the Notion page body.
 3. Run `npm run build-data` (or push and let Vercel run it). The talk
    shows up on `/past.html` and gets its own page at

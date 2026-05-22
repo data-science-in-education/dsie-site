@@ -53,6 +53,7 @@
     </g>
   </svg>
 
+  <!-- nav+footer: keep in sync across all pages — see README#customising -->
   <div class="dse-pattern-nav">
     <nav class="dse-nav transparent">
       <a class="dse-nav-logo" href="index.html">
@@ -98,9 +99,20 @@
 
 
 <!-- ================================================================
+     STATS BAR (populated by home-loader.js)
+     ================================================================ -->
+<section id="home-stats-section" style="display:none">
+  <div class="dse-section tight" style="padding-top:40px;padding-bottom:40px;border-bottom:1.5px solid var(--dse-line)">
+    <ul id="home-stats-bar" class="home-stats-bar" aria-label="Community stats"></ul>
+  </div>
+</section>
+
+
+<!-- ================================================================
      PARTNERS / SPEAKERS BAR
      ================================================================ -->
 <section class="dse-section tight" style="padding-top:36px;padding-bottom:36px;border-bottom:1.5px solid var(--dse-line)" aria-label="Speakers come from">
+<!-- update this list when new speakers join from new organisations -->
   <ul class="partners-bar">
     <li class="eyebrow" aria-hidden="true" style="color:var(--dse-muted)">Speakers come from</li>
     <li class="partner-name">Eedi</li>
@@ -134,7 +146,8 @@
     </div>
 
     <div>
-      <div class="dse-empty-state">
+      <div id="home-upcoming-list"></div>
+      <div id="home-upcoming-empty" class="dse-empty-state">
         <h3 class="h3">Confirmed dates land on Meetup first.</h3>
         <p class="body" style="margin-top:8px;color:var(--dse-muted);max-width:520px;margin-left:auto;margin-right:auto">
           We'll list upcoming talks here once they're confirmed. In the meantime, join the meetup to get the dates as we announce them.
@@ -158,7 +171,8 @@
     <a class="dse-btn ghost-white" href="past.html">All past talks <span class="arr">→</span></a>
   </div>
 
-  <div class="dse-empty-state" style="border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.85)">
+  <div id="home-past-grid" style="display:none;grid-template-columns:repeat(3,1fr);gap:32px;row-gap:48px" class="events-grid"></div>
+  <div id="home-past-empty" class="dse-empty-state" style="border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.85)">
     <h3 class="h3" style="color:#fff">Recordings on the way.</h3>
     <p class="body" style="margin-top:8px;color:rgba(255,255,255,.75);max-width:520px;margin-left:auto;margin-right:auto">
       Each past talk gets its own page — video at the top, write-up underneath. We'll publish them here as they go up.
@@ -234,6 +248,7 @@
 </footer>
 
 <script src="js/main.js"></script>
+<script src="js/home-loader.js"></script>
 </main>
 </body>
 </html>

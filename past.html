@@ -53,6 +53,7 @@
     </g>
   </svg>
 
+  <!-- nav+footer: keep in sync across all pages — see README#customising -->
   <div class="dse-pattern-nav">
     <nav class="dse-nav transparent">
       <a class="dse-nav-logo" href="index.html">
@@ -101,7 +102,11 @@
      ================================================================ -->
 <section class="dse-section">
   <div id="year-filter"></div>
-  <div id="blog-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;row-gap:48px" class="events-grid"></div>
+  <div id="blog-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;row-gap:48px" class="events-grid">
+    <div class="dse-skel-card" aria-hidden="true"><div class="dse-skel dse-skel-panel"></div><div class="dse-skel-meta"><div class="dse-skel dse-skel-avatar"></div><div class="dse-skel dse-skel-text"></div></div></div>
+    <div class="dse-skel-card" aria-hidden="true"><div class="dse-skel dse-skel-panel"></div><div class="dse-skel-meta"><div class="dse-skel dse-skel-avatar"></div><div class="dse-skel dse-skel-text"></div></div></div>
+    <div class="dse-skel-card" aria-hidden="true"><div class="dse-skel dse-skel-panel"></div><div class="dse-skel-meta"><div class="dse-skel dse-skel-avatar"></div><div class="dse-skel dse-skel-text"></div></div></div>
+  </div>
   <div id="blog-empty" class="dse-empty-state" style="display:none">
     <h3 class="h3">No posts yet — but they're coming.</h3>
     <p class="body" style="margin-top:8px;color:var(--dse-muted);max-width:520px;margin-left:auto;margin-right:auto">

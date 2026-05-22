@@ -417,6 +417,73 @@ button { font: inherit; cursor: pointer; border: 0; }
   color: #fff;
 }
 
+/* ---- home stats bar ---- */
+.home-stats-bar {
+  list-style: none;
+  display: flex; flex-wrap: wrap; gap: 48px;
+}
+.home-stats-bar li { display: flex; flex-direction: column; gap: 4px; }
+.home-stat-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 48px; font-weight: 700;
+  letter-spacing: -0.035em; line-height: 1;
+  color: var(--dse-blue);
+}
+.home-stat-label { font-size: 14px; color: var(--dse-muted); }
+
+/* ---- past-talk next/prev nav ---- */
+.post-nav {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px; margin-top: 3rem; padding-top: 2rem;
+  border-top: 1.5px solid var(--dse-line);
+}
+.post-nav-link {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 16px 20px; border: 1.5px solid var(--dse-line);
+  border-radius: 12px; text-decoration: none; color: inherit;
+  transition: border-color .15s, background .15s;
+}
+.post-nav-link:hover { border-color: var(--dse-blue); background: var(--dse-cream); }
+.post-nav-older { text-align: right; }
+.post-nav-dir {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--dse-blue);
+}
+.post-nav-title { font-size: 15px; font-weight: 500; line-height: 1.3; color: var(--dse-ink); }
+
+/* ---- search + year filter row ---- */
+.past-filter-row {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 16px; margin-bottom: 2rem;
+}
+.past-filter-row .year-filter-inner { margin-bottom: 0; }
+.past-search {
+  padding: 8px 18px; border-radius: 999px;
+  border: 1.5px solid var(--dse-line);
+  background: transparent;
+  font-family: 'Space Grotesk', sans-serif; font-size: 0.875rem; color: var(--dse-ink);
+  outline: none; min-width: 220px; transition: border-color .15s;
+}
+.past-search:focus { border-color: var(--dse-blue); }
+.past-search::placeholder { color: var(--dse-muted); }
+
+/* ---- loading skeleton ---- */
+@keyframes dse-shimmer {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+.dse-skel {
+  background: linear-gradient(90deg, var(--dse-line) 25%, #e0ddda 50%, var(--dse-line) 75%);
+  background-size: 200% 100%;
+  animation: dse-shimmer 1.4s ease-in-out infinite;
+}
+.dse-skel-card { display: block; }
+.dse-skel-panel { border-radius: 16px; aspect-ratio: 4/3; }
+.dse-skel-meta { padding: 12px 0; display: flex; gap: 8px; align-items: center; }
+.dse-skel-avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }
+.dse-skel-text { flex: 1; height: 14px; border-radius: 4px; }
+
 /* ============================================================
    Responsive
    ============================================================ */
