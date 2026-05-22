@@ -2,7 +2,6 @@ node_modules/
 .env
 *.log
 .DS_Store
-data/events.json
 data/videos.json
 data/talks.json
 .claude
