@@ -250,25 +250,25 @@ async function loadBlogPost() {
     }
 
     if (post.description) {
-      const avatar       = speakerAvatar(post.speaker, post.speakerPhotoUrl, 40);
-      const attribution  = post.speaker ? `
-        <figcaption class="talk-quote-attr">
-          ${avatar}
-          <span class="talk-quote-name">${escapeHtml(post.speaker)}</span>
-        </figcaption>` : '';
       chunks.push(`
-        <figure class="talk-quote">
+        <figure class="talk-quote-standalone">
           <blockquote>${escapeHtml(post.description)}</blockquote>
-          ${attribution}
         </figure>`);
+    }
+
+    if (post.speaker || post.speakerBio) {
+      const avatar   = speakerAvatar(post.speaker, post.speakerPhotoUrl, 40);
+      const nameHtml = post.speaker
+        ? `<span class="talk-quote-name">${escapeHtml(post.speaker)}</span>` : '';
+      const attrHtml = (avatar || nameHtml)
+        ? `<div class="talk-quote-attr">${avatar}${nameHtml}</div>` : '';
+      const bioHtml  = post.speakerBio
+        ? `<p class="talk-speaker-bio">${escapeHtml(post.speakerBio)}</p>` : '';
+      chunks.push(`<div class="talk-speaker-card">${attrHtml}${bioHtml}</div>`);
     }
 
     if (post.contentHtml) {
       chunks.push(`<div class="blog-content">${post.contentHtml}</div>`);
-    }
-
-    if (post.speakerBio) {
-      chunks.push(`<p class="talk-speaker-bio">${escapeHtml(post.speakerBio)}</p>`);
     }
 
     if (content) content.innerHTML = chunks.join('');

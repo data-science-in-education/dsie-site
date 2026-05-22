@@ -334,33 +334,35 @@ button { font: inherit; cursor: pointer; border: 0; }
 .event-highlights ul { padding-left: 1.5rem; }
 .event-highlights li { padding: .4rem 0; }
 
-.talk-quote {
+.talk-quote-standalone {
   margin: 0 0 2rem;
-  padding: 1.75rem 1.75rem 1.5rem;
-  background: var(--dse-cream);
-  border-radius: 16px;
+  padding-left: 1.25rem;
   position: relative;
 }
-.talk-quote::before {
+.talk-quote-standalone::before {
   content: '\201C';
   position: absolute;
-  top: 0.6rem; left: 1.25rem;
+  top: -1.25rem; left: 0;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 5rem; line-height: 1;
   color: var(--dse-blue); opacity: 0.18;
   pointer-events: none;
 }
-.talk-quote blockquote {
+.talk-quote-standalone blockquote {
   margin: 0;
   padding-top: 1.75rem;
   font-size: 1rem;
   line-height: 1.7;
   color: var(--dse-ink);
 }
+.talk-speaker-card {
+  margin: 0 0 2rem;
+  padding: 1.5rem;
+  background: var(--dse-cream);
+  border-radius: 16px;
+}
 .talk-quote-attr {
   display: flex; align-items: center; gap: 12px;
-  margin-top: 1.25rem; padding-top: 1rem;
-  border-top: 1px solid rgba(0,0,0,0.08);
 }
 .talk-quote-name {
   font-family: 'Space Grotesk', sans-serif;
@@ -369,7 +371,7 @@ button { font: inherit; cursor: pointer; border: 0; }
 .talk-speaker-bio {
   font-size: 0.95rem; line-height: 1.7;
   color: var(--dse-muted);
-  margin: 0 0 2rem;
+  margin: 1rem 0 0;
 }
 
 .talk-avatar {
