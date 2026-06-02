@@ -9,7 +9,8 @@
     "og":           "node scripts/og-image.js",
     "build-data":   "npm run fetch-notion && npm run og",
     "serve":        "python3 -m http.server 8000",
-    "dev":          "npm run build-data && npm run serve"
+    "dev":          "npm run build-data && npm run serve",
+    "video":        "node tools/video/server.js"
   },
   "keywords": [
     "data-science",

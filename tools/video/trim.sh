@@ -115,21 +115,19 @@ for i, k in enumerate(keeps):
     print(f"  [{i+1}] {k['start']:.1f}s → {k['end']:.1f}s  ({dur:.1f}s)")
 
 if len(keeps) == 1:
-    # Simple case: single segment — use -ss / -to (fast, no re-encode of whole file)
+    # Single segment — stream copy (near-instant, cuts at nearest keyframe)
     k = keeps[0]
     cmd = [
         'ffmpeg', '-hide_banner', '-loglevel', 'warning', '-stats', '-y',
-        '-i', input_file,
         '-ss', str(k['start']),
         '-to', str(k['end']),
-        '-vf', scale_filter,
-        '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p',
-        '-c:a', 'aac', '-b:a', '192k', '-ar', SAR,
+        '-i', input_file,
+        '-c:v', 'copy', '-c:a', 'copy',
         '-movflags', '+faststart',
         out_file,
     ]
 else:
-    # Multi-segment: filter_complex with trim / atrim / concat
+    # Multi-segment: filter_complex with trim / atrim / concat (re-encode required)
     norm_parts = []
     concat_refs = ''
     for i, k in enumerate(keeps):
@@ -150,7 +148,7 @@ else:
         '-i', input_file,
         '-filter_complex', filter_graph,
         '-map', '[v]', '-map', '[a]',
-        '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p',
+        '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-pix_fmt', 'yuv420p',
         '-c:a', 'aac', '-b:a', '192k', '-ar', SAR,
         '-movflags', '+faststart',
         out_file,

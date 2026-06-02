@@ -278,6 +278,48 @@
       transition: opacity .3s;
     }
     .copy-ok.show { opacity: 1; }
+
+    /* ── Process panel (server mode) ── */
+    .proc-panel {
+      width: 100%; max-width: 1100px;
+      background: #111122;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: none; flex-direction: column; gap: 14px;
+    }
+    .proc-panel.visible { display: flex; }
+    .proc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .proc-field { display: flex; flex-direction: column; gap: 6px; }
+    .proc-label { font-size: 12px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.06em; }
+    .proc-select {
+      appearance: none; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14); border-radius: 6px;
+      color: #e8e5de; font-size: 13px; font-family: "SFMono-Regular", Consolas, monospace;
+      padding: 7px 11px; outline: none; cursor: pointer;
+    }
+    .proc-select:focus { border-color: #3514FF; }
+    .proc-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+
+    /* ── Log panel ── */
+    .log-panel {
+      width: 100%; max-width: 1100px;
+      background: #070710; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; display: none; flex-direction: column;
+      max-height: 280px; overflow: hidden;
+    }
+    .log-panel.visible { display: flex; }
+    .log-header {
+      padding: 9px 16px; font-size: 12px; font-weight: 600;
+      color: rgba(255,255,255,0.35); border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+    .log-text {
+      flex: 1; overflow-y: auto; padding: 12px 16px; margin: 0;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px; line-height: 1.6; color: #c8e6c8;
+      white-space: pre-wrap; word-break: break-all;
+    }
   </style>
 </head>
 <body>
@@ -344,6 +386,37 @@
 
 </div>
 
+<!-- Process panel — visible in server mode after video loads -->
+<div class="proc-panel" id="proc-panel">
+  <div class="proc-field">
+    <span class="proc-label">Source video — WSL path</span>
+    <input class="cmd-path-input" id="proc-source"
+           placeholder="/mnt/g/Shared drives/.../recording.mp4">
+  </div>
+  <div class="proc-grid">
+    <div class="proc-field">
+      <span class="proc-label">Title card</span>
+      <select class="proc-select" id="proc-title-card">
+        <option value="">— no title card —</option>
+      </select>
+    </div>
+    <div class="proc-field">
+      <span class="proc-label">Output — WSL path</span>
+      <input class="cmd-path-input" id="proc-output"
+             placeholder="auto-filled when title card is selected">
+    </div>
+  </div>
+  <div class="proc-actions">
+    <button class="btn btn-export" id="btn-process" disabled>▶ Process video</button>
+  </div>
+</div>
+
+<!-- Log panel — appears when processing starts -->
+<div class="log-panel" id="log-panel">
+  <div class="log-header">ffmpeg output</div>
+  <pre class="log-text" id="log-text"></pre>
+</div>
+
 <div class="cmd-panel" id="cmd-panel">
   <div class="cmd-panel-title">✓ cuts.json exported — run this in your terminal</div>
   <div class="cmd-path-row">
@@ -400,6 +473,16 @@ const ctxMenu    = document.getElementById('ctx-menu');
 const ctxDelete  = document.getElementById('ctx-delete');
 const tlLeft     = document.getElementById('tl-left');
 const tlRight    = document.getElementById('tl-right');
+
+const SERVER_MODE   = location.protocol !== 'file:';
+const BASE_PATH_KEY = 'dse-video-base-path';
+const procPanel     = document.getElementById('proc-panel');
+const procSource    = document.getElementById('proc-source');
+const procTitleCard = document.getElementById('proc-title-card');
+const procOutput    = document.getElementById('proc-output');
+const btnProcess    = document.getElementById('btn-process');
+const logPanel      = document.getElementById('log-panel');
+const logText       = document.getElementById('log-text');
 
 // ── Drag state ─────────────────────────────────────────────────────────────
 let drag = {
@@ -743,6 +826,15 @@ vid.addEventListener('loadedmetadata', () => {
   controlsEl.style.display = '';
   btnExport.disabled = false;
 
+  if (SERVER_MODE) {
+    procPanel.classList.add('visible');
+    btnExport.style.display = 'none';
+    btnProcess.disabled = false;
+    const base = localStorage.getItem(BASE_PATH_KEY) || '';
+    if (base) procSource.value = base.replace(/\/?$/, '/') + S.fileName;
+    updateProcOutput();
+  }
+
   fileLabel.textContent = `${S.fileName}  ·  ${fmtDur(S.duration)}`;
   fileLabel.classList.add('loaded');
   tlLeft.textContent  = fmtShort(0);
@@ -783,7 +875,6 @@ const basePathSaved = document.getElementById('base-path-saved');
 const btnCopy       = document.getElementById('btn-copy');
 const copyOk        = document.getElementById('copy-ok');
 
-const BASE_PATH_KEY = 'dse-video-base-path';
 cmdBasePath.value = localStorage.getItem(BASE_PATH_KEY) || '';
 
 function autoFillVideoPath() {
@@ -838,6 +929,87 @@ btnCopy.addEventListener('click', () => {
     setTimeout(() => copyOk.classList.remove('show'), 2000);
   });
 });
+
+// ── Server mode: process panel ─────────────────────────────────────────────
+function updateProcOutput() {
+  const tc  = procTitleCard ? procTitleCard.value : '';
+  const src = procSource    ? procSource.value.trim() : '';
+  if (!tc || !src || !procOutput) return;
+  const dir  = src.includes('/') ? src.slice(0, src.lastIndexOf('/')) : '';
+  const slug = tc.replace(/^talk-/, '').replace(/\.png$/i, '');
+  if (dir && slug) procOutput.value = dir + '/' + slug + '.mp4';
+}
+
+if (SERVER_MODE) {
+  // Populate title card dropdown
+  fetch('/api/talks').then(r => r.json()).then(files => {
+    files.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f;
+      opt.textContent = f.replace(/^talk-/, '').replace(/\.png$/i, '').replace(/-/g, ' ');
+      procTitleCard.appendChild(opt);
+    });
+  }).catch(() => {});
+
+  // Save base path whenever source is edited
+  procSource.addEventListener('input', () => {
+    const src = procSource.value;
+    if (src.includes('/')) localStorage.setItem(BASE_PATH_KEY, src.slice(0, src.lastIndexOf('/') + 1));
+    updateProcOutput();
+  });
+
+  procTitleCard.addEventListener('change', updateProcOutput);
+
+  btnProcess.addEventListener('click', async () => {
+    const keeps = getKeeps().map(k => ({
+      start: Math.round(k.start * 10) / 10,
+      end:   Math.round(k.end   * 10) / 10,
+    }));
+    if (!keeps.length) return;
+
+    btnProcess.disabled = true;
+    logPanel.classList.add('visible');
+    logText.textContent = '';
+
+    try {
+      const res = await fetch('/api/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source:    procSource.value.trim(),
+          keeps,
+          titleCard: procTitleCard.value || null,
+          output:    procOutput.value.trim(),
+        }),
+      });
+
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split('\n');
+        buf = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const ev = JSON.parse(line.slice(6));
+            if (ev.type === 'log' || ev.type === 'error') {
+              logText.textContent += ev.text;
+              logText.scrollTop = logText.scrollHeight;
+            }
+            if (ev.type === 'done') btnProcess.disabled = false;
+          } catch {}
+        }
+      }
+    } catch (err) {
+      logText.textContent += '\nFetch error: ' + err.message;
+      btnProcess.disabled = false;
+    }
+  });
+}
 </script>
 </body>
 </html>
