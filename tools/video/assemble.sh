@@ -132,7 +132,7 @@ if [[ -n "$TITLE_CARD" ]]; then
     -loop 1 -framerate ${TARGET_FPS} -t "$TITLE_CARD_DURATION" -i "$TITLE_CARD" \
     -f lavfi -t "$TITLE_CARD_DURATION" -i "anullsrc=channel_layout=stereo:sample_rate=${TARGET_SAR}" \
     -vf "scale=${TARGET_W}:${TARGET_H}:force_original_aspect_ratio=decrease,pad=${TARGET_W}:${TARGET_H}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1,fps=${TARGET_FPS}" \
-    -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p \
+    -c:v libx264 -preset fast -crf 22 -pix_fmt yuv420p \
     -c:a aac -b:a 192k -ar ${TARGET_SAR} \
     -shortest -movflags +faststart \
     "$TMP_TITLE"
@@ -171,7 +171,7 @@ ffmpeg -hide_banner -loglevel warning -stats -y \
   "${INPUT_ARGS[@]}" \
   -filter_complex "$FILTER" \
   -map "[v]" -map "[a]" \
-  -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p \
+  -c:v libx264 -preset fast -crf 22 -pix_fmt yuv420p \
   -c:a aac -b:a 192k -ar ${TARGET_SAR} \
   -movflags +faststart \
   "$OUT"
