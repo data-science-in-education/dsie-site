@@ -234,9 +234,10 @@ async function fetchEvents() {
 
       const title       = getPropertyValue(props.Title);
       const speakerName = props.Speaker ? getRichTextContent(props.Speaker) : '';
+      const customSlug  = props.Slug ? getRichTextContent(props.Slug).trim() : '';
       return {
         id: page.id,
-        slug: slugify(title),
+        slug: customSlug ? slugify(customSlug) : slugify(title),
         title: title,
         speaker:          speakerName,
         speakerBio:       props['Speaker Bio'] ? getRichTextContent(props['Speaker Bio']) : '',

@@ -107,7 +107,7 @@ echo
 
 # ---- cleanup ----
 TMP_FILES=()
-cleanup() { for f in "${TMP_FILES[@]:-}"; do [[ -n "$f" ]] && rm -f "$f"; done; }
+cleanup() { for f in "${TMP_FILES[@]:-}"; do if [[ -n "$f" ]]; then rm -f "$f"; fi; done; }
 trap cleanup EXIT
 
 # ---- if a separate audio file is provided, premux it onto the speaker recording ----
@@ -151,16 +151,62 @@ else
 fi
 
 # Per-input scale+pad+fps for video, aresample+stereo for audio.
+# Audio is clamped to the video-stream duration of each input to prevent
+# audio tails (common in screen recordings) from producing frozen frames.
 NORM=""
 CONCAT=""
+TOTAL_DUR=0
 N=${#INPUTS[@]}
+echo "Input durations (frame-count / audio streams):"
 for ((i=0; i<N; i++)); do
-  NORM+="[${i}:v]scale=${TARGET_W}:${TARGET_H}:force_original_aspect_ratio=decrease,pad=${TARGET_W}:${TARGET_H}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1,fps=${TARGET_FPS}[v${i}];
+  f="${INPUTS[$i]}"
+
+  # Compute duration from nb_frames × frame_rate — this is immune to bad container
+  # timestamps (stray frames with huge PTS) that inflate the declared stream duration.
+  nb_frames=$(ffprobe -v error -select_streams v:0 \
+    -show_entries stream=nb_frames -of default=noprint_wrappers=1:nokey=1 "$f" 2>/dev/null)
+  r_frame_rate=$(ffprobe -v error -select_streams v:0 \
+    -show_entries stream=r_frame_rate -of default=noprint_wrappers=1:nokey=1 "$f" 2>/dev/null)
+  vdur=""
+  if [[ -n "$nb_frames" && "$nb_frames" != "N/A" && -n "$r_frame_rate" && "$r_frame_rate" != "N/A" ]]; then
+    vdur=$(awk "BEGIN{
+      n=split(\"$r_frame_rate\",a,\"/\");
+      num=a[1]+0; den=(n>=2 && a[2]+0>0) ? a[2]+0 : 1;
+      if(num>0) printf \"%.6f\", $nb_frames / (num/den);
+    }")
+  fi
+  # Fall back to declared stream duration, then container duration
+  if [[ -z "$vdur" ]]; then
+    vdur=$(ffprobe -v error -select_streams v:0 \
+      -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 "$f" 2>/dev/null)
+  fi
+  if [[ -z "$vdur" || "$vdur" == "N/A" ]]; then
+    vdur=$(ffprobe -v error -show_entries format=duration \
+      -of default=noprint_wrappers=1:nokey=1 "$f" 2>/dev/null)
+  fi
+
+  adur=$(ffprobe -v error -select_streams a:0 \
+    -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 "$f" 2>/dev/null)
+  printf "  [%d] frames=%-6s fps=%-10s vdur=%-12s audio=%-12s  %s\n" \
+    "$i" "${nb_frames:-N/A}" "${r_frame_rate:-N/A}" "${vdur:-N/A}" "${adur:-N/A}" "$(basename "$f")"
+
+  TOTAL_DUR=$(awk "BEGIN{printf \"%.6f\", $TOTAL_DUR + ${vdur:-0}}")
+
+  # trim=end=vdur removes any stray high-PTS frames before fps sees them,
+  # preventing the fps filter from gap-filling beyond actual content.
+  NORM+="[${i}:v]trim=end=${vdur},setpts=PTS-STARTPTS,scale=${TARGET_W}:${TARGET_H}:force_original_aspect_ratio=decrease,pad=${TARGET_W}:${TARGET_H}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1,fps=${TARGET_FPS}[v${i}];
 "
-  NORM+="[${i}:a]aresample=${TARGET_SAR},aformat=channel_layouts=stereo[a${i}];
+  if [[ -n "$vdur" && "$vdur" != "N/A" ]]; then
+    NORM+="[${i}:a]atrim=end=${vdur},asetpts=PTS-STARTPTS,aresample=${TARGET_SAR},aformat=channel_layouts=stereo[a${i}];
 "
+  else
+    NORM+="[${i}:a]aresample=${TARGET_SAR},aformat=channel_layouts=stereo[a${i}];
+"
+  fi
   CONCAT+="[v${i}][a${i}]"
 done
+
+echo "Expected output duration: ${TOTAL_DUR}s"
 FILTER="${NORM}${CONCAT}concat=n=${N}:v=1:a=1[v][a]"
 
 # Compose the -i flags from the INPUTS array
@@ -175,6 +221,25 @@ ffmpeg -hide_banner -loglevel warning -stats -y \
   -c:a aac -b:a 192k -ar ${TARGET_SAR} \
   -movflags +faststart \
   "$OUT"
+
+# ---- fix audio tail ---------------------------------------------------------
+# Some recordings have audio that outlasts the video track. After encoding,
+# probe both streams; if audio is more than 0.5 s longer, stream-copy trim it.
+V_DUR=$(ffprobe -v error -select_streams v:0 \
+  -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 "$OUT" 2>/dev/null)
+A_DUR=$(ffprobe -v error -select_streams a:0 \
+  -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 "$OUT" 2>/dev/null)
+if [[ -n "$V_DUR" && -n "$A_DUR" ]]; then
+  TAIL=$(awk "BEGIN{d=$A_DUR-$V_DUR; printf \"%.3f\", (d>0.5)?d:0}")
+  if [[ "$TAIL" != "0.000" ]]; then
+    echo "==> Audio tail detected (${TAIL}s) — trimming to video duration..."
+    TMP_FIXED=$(mktemp -t dse-fixed.XXXXXX.mp4)
+    ffmpeg -hide_banner -loglevel warning -y \
+      -i "$OUT" -c copy -t "$V_DUR" -movflags +faststart "$TMP_FIXED" \
+      && mv "$TMP_FIXED" "$OUT" || rm -f "$TMP_FIXED"
+    echo "Fixed."
+  fi
+fi
 
 echo
 echo "Done: $OUT"

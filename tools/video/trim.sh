@@ -20,11 +20,6 @@ CUTS=""
 INPUT=""
 OUT="out/trimmed.mp4"
 
-TARGET_W=1920
-TARGET_H=1080
-TARGET_FPS=30
-TARGET_SAR=48000
-
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --cuts)  CUTS="$2";  shift 2 ;;
@@ -73,14 +68,10 @@ if ! command -v python3 >/dev/null 2>&1; then echo "ERROR: python3 not found" >&
 mkdir -p "$(dirname "$OUT")"
 
 # Delegate to Python for JSON parsing + ffmpeg command building
-python3 - \
-  "$CUTS" "$INPUT" "$OUT" \
-  "$TARGET_W" "$TARGET_H" "$TARGET_FPS" "$TARGET_SAR" \
-  <<'PYEOF'
+python3 - "$CUTS" "$INPUT" "$OUT" <<'PYEOF'
 import json, sys, subprocess, os
 
 cuts_file, input_file, out_file = sys.argv[1], sys.argv[2], sys.argv[3]
-W, H, FPS, SAR = sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7]
 
 with open(cuts_file) as f:
     data = json.load(f)
@@ -90,7 +81,6 @@ if not keeps:
     print("ERROR: no keep segments found in cuts.json", file=sys.stderr)
     sys.exit(1)
 
-# Sort segments by start time and validate for overlaps / bad ranges
 keeps = sorted(keeps, key=lambda k: k['start'])
 for i, k in enumerate(keeps):
     if k['end'] <= k['start']:
@@ -102,65 +92,65 @@ for i, k in enumerate(keeps):
 
 os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)
 
-scale_filter = (
-    f"scale={W}:{H}:force_original_aspect_ratio=decrease,"
-    f"pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color=black,"
-    f"setsar=1,fps={FPS}"
-)
-
 total_kept = sum(k['end'] - k['start'] for k in keeps)
 print(f"trim: {len(keeps)} segment(s) from {input_file}  (keeping {total_kept:.1f}s)")
 for i, k in enumerate(keeps):
     dur = k['end'] - k['start']
     print(f"  [{i+1}] {k['start']:.1f}s → {k['end']:.1f}s  ({dur:.1f}s)")
+print()
 
 if len(keeps) == 1:
-    # Single segment — stream copy (near-instant, cuts at nearest keyframe)
     k = keeps[0]
-    cmd = [
+    result = subprocess.run([
         'ffmpeg', '-hide_banner', '-loglevel', 'warning', '-stats', '-y',
         '-ss', str(k['start']),
-        '-to', str(k['end']),
         '-i', input_file,
-        '-c:v', 'copy', '-c:a', 'copy',
-        '-movflags', '+faststart',
+        '-t', str(k['end'] - k['start']),  # output duration, not input -to, avoids moov duration bug
+        '-c', 'copy', '-avoid_negative_ts', 'make_zero',
         out_file,
-    ]
+    ])
+    if result.returncode != 0:
+        sys.exit(result.returncode)
 else:
-    # Multi-segment: filter_complex with trim / atrim / concat (re-encode required)
-    norm_parts = []
-    concat_refs = ''
+    # Extract each segment with stream copy, then concat — no re-encode.
+    # assemble.sh normalises (scale, fps, codec) anyway.
+    segs, ok = [], True
     for i, k in enumerate(keeps):
-        norm_parts.append(
-            f"[0:v]trim=start={k['start']}:end={k['end']},setpts=PTS-STARTPTS,"
-            f"{scale_filter}[v{i}]"
-        )
-        norm_parts.append(
-            f"[0:a]atrim=start={k['start']}:end={k['end']},asetpts=PTS-STARTPTS,"
-            f"aresample={SAR},aformat=channel_layouts=stereo[a{i}]"
-        )
-        concat_refs += f'[v{i}][a{i}]'
+        seg = f'/tmp/dse-trim-seg-{i}.mp4'
+        segs.append(seg)
+        print(f"extract [{i+1}/{len(keeps)}] {k['start']:.1f}s → {k['end']:.1f}s")
+        r = subprocess.run([
+            'ffmpeg', '-hide_banner', '-loglevel', 'warning', '-y',
+            '-ss', str(k['start']),
+            '-i', input_file,
+            '-t', str(k['end'] - k['start']),  # output duration, not input -to, avoids moov duration bug
+            '-c', 'copy', '-avoid_negative_ts', 'make_zero', seg,
+        ])
+        if r.returncode != 0:
+            ok = False; break
 
-    filter_graph = ';\n'.join(norm_parts) + ';\n' + concat_refs + f'concat=n={len(keeps)}:v=1:a=1[v][a]'
+    if ok:
+        concat_list = '/tmp/dse-trim-concat.txt'
+        with open(concat_list, 'w') as fh:
+            fh.writelines(f"file '{s}'\n" for s in segs)
+        print()
+        result = subprocess.run([
+            'ffmpeg', '-hide_banner', '-loglevel', 'warning', '-stats', '-y',
+            '-f', 'concat', '-safe', '0', '-i', concat_list,
+            '-c', 'copy',
+            out_file,
+        ])
+        ok = result.returncode == 0
+        try: os.unlink(concat_list)
+        except: pass
 
-    cmd = [
-        'ffmpeg', '-hide_banner', '-loglevel', 'warning', '-stats', '-y',
-        '-i', input_file,
-        '-filter_complex', filter_graph,
-        '-map', '[v]', '-map', '[a]',
-        '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-pix_fmt', 'yuv420p',
-        '-c:a', 'aac', '-b:a', '192k', '-ar', SAR,
-        '-movflags', '+faststart',
-        out_file,
-    ]
-
-print()
-result = subprocess.run(cmd)
-if result.returncode != 0:
-    sys.exit(result.returncode)
+    for s in segs:
+        try: os.unlink(s)
+        except: pass
+    if not ok:
+        sys.exit(1)
 
 size_mb = os.path.getsize(out_file) / (1024 * 1024)
-# Get output duration via ffprobe
 probe = subprocess.run(
     ['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
      '-of', 'default=noprint_wrappers=1:nokey=1', out_file],
