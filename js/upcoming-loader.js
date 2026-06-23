@@ -1,6 +1,7 @@
 // Populate the upcoming-talks list on upcoming.html from data/events.json.
-// data/events.json is produced by `npm run fetch-notion`. When it's missing
-// or empty, the static empty-state block already in the HTML stays put.
+// data/events.json is generated upstream (the dsie-ops repo) and committed
+// here. When it's missing or empty, the static empty-state block already in
+// the HTML stays put.
 
 document.addEventListener('DOMContentLoaded', () => {
   const list  = document.getElementById('upcoming-list');
