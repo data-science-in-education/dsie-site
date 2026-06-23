@@ -21,7 +21,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://datascienceineducation.events/past-talk?id=inaugural-meeting-with-a-talk-by-kavita-kapoor-can-robots-replace-teachers</loc>
+    <loc>https://datascienceineducation.events/past-talk?id=can-robots-replace-teachers</loc>
     <lastmod>2021-09-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -209,6 +209,12 @@
   <url>
     <loc>https://datascienceineducation.events/past-talk?id=ai-driven-and-closed-loop-human-tutor-training-and-real-life-assessment</loc>
     <lastmod>2026-03-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://datascienceineducation.events/past-talk?id=towards-impact-oriented-benchmarks-for-ai-tutors</loc>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
