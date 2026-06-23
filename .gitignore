@@ -1,11 +1,9 @@
-node_modules/
-.env
-*.log
 .DS_Store
-data/videos.json
-data/talks.json
+*.log
 .claude
 *.lnk
 *.Zone.Identifier
 ref/
-meetup-private.pem
+
+# Local working files — raw recordings etc. Never commit.
+videos/

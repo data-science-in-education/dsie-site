@@ -3,8 +3,11 @@
 The website for the **Data Science in Education** meetup — a monthly meetup at
 the intersection of data and education. Mostly online, occasionally in London.
 
-Static HTML/CSS/JS, with a small Node build step that pulls upcoming &
-past-talk data from Notion and renders OG images.
+This is a **pure static site**: plain HTML/CSS/JS with no build step. Every
+page is served as-is. The event data (`data/events.json`), social/OG images
+(`images/og/`), speaker photos (`images/speakers/`), and `sitemap.xml` are
+**generated upstream** and committed here as plain files — see
+[Updating content](#updating-content).
 
 ## Pages
 
@@ -13,7 +16,7 @@ past-talk data from Notion and renders OG images.
 | `/`                 | Home — partners, upcoming/past previews                 |
 | `/upcoming.html`    | Upcoming talks (from `data/events.json`)                |
 | `/past.html`        | Past talks listing (from `data/events.json`)            |
-| `/past-talk.html`   | Single past-talk page — video + write-up                |
+| `/past-talk.html`   | Single past-talk page — video + write-up (`?id=<slug>`) |
 | `/about.html`       | About + organisers                                      |
 
 ## Project layout
@@ -25,95 +28,65 @@ past-talk data from Notion and renders OG images.
 ├── past.html            # populated by js/past-loader.js
 ├── past-talk.html       # populated by js/past-loader.js (?id=<slug>)
 ├── about.html
+├── 404.html
 ├── css/styles.css
 ├── js/
 │   ├── main.js              # nav + interactions
+│   ├── home-loader.js       # home-page upcoming/past previews
 │   ├── upcoming-loader.js   # renders upcoming list from data/events.json
 │   └── past-loader.js       # renders past-talks listing + single-talk pages
-├── scripts/
-│   ├── notion-fetch.js      # pulls all events from Notion → data/events.json
-│   └── og-image.js          # renders 1200x630 PNGs into images/og/
-├── data/                    # generated; gitignored
-│   └── events.json          # all events (upcoming + past with content)
+├── data/events.json     # all events (generated upstream, committed here)
 ├── images/
 │   ├── logos/               # DSE-badge.svg, DSE-logo-*.svg
-│   ├── organisers/          # simon.png, digory.jpg
-│   └── og/                  # generated 1200x630 social preview cards
+│   ├── organisers/          # organiser photos
+│   ├── speakers/            # speaker photos (generated upstream)
+│   └── og/                  # 1200x630 social preview cards (generated upstream)
 ├── vercel.json              # security headers + redirects from old URLs
-├── sitemap.xml
+├── sitemap.xml              # generated upstream
 ├── robots.txt
 └── site.webmanifest         # PWA manifest (icons, theme color)
 ```
 
-## Quick start
+## Local preview
+
+No install, no dependencies — just serve the folder:
 
 ```bash
-git clone https://github.com/data-science-in-education/dsie-site.git
-cd dsie-site
-npm install
-
-# Set up Notion → NOTION_SETUP.md
-cp .env.example .env
-# ... edit .env ...
-
-# Pull data, render OG images, and serve
-npm run dev          # = build-data + serve at http://localhost:8000
+python3 -m http.server 8000
+# → http://localhost:8000
 ```
 
-## Available scripts
+(Any static file server works.)
 
-| Script                  | What it does                                                              |
-| ----------------------- | ------------------------------------------------------------------------- |
-| `npm run fetch-notion`  | Pull all events from Notion → `data/events.json`                          |
-| `npm run og`            | Regenerate `images/og/*.png` (site default + per-page + per-talk)         |
-| `npm run build-data`    | `fetch-notion` + `og`                                                     |
-| `npm run serve`         | Static file server on :8000                                               |
-| `npm run dev`           | `build-data` + `serve`                                                    |
+## Updating content
 
-### Data pipeline
+Event data and generated images are **not** edited here by hand. Notion is the
+source of truth, and the [`dsie-ops`](https://github.com/data-science-in-education/dsie-ops)
+repo (private) regenerates the artifacts and commits them into this repo:
 
-```
-Notion ── fetch-notion ──▶ data/events.json ──▶ all pages
-```
+1. Add/edit the talk in the Notion Events database.
+2. In a local `dsie-ops` checkout, run `npm run publish` (review the diff),
+   then `npm run publish -- --push` to commit + push here.
+3. Vercel auto-deploys on push.
 
-Notion is the source of truth. Both scripts soft-exit when credentials
-aren't set, so a Vercel build without secrets still produces a usable
-empty-state site.
+That refresh updates `data/events.json`, `images/og/`, `images/speakers/`, and
+`sitemap.xml`. Everything else on the site is hand-written HTML you edit here
+directly.
 
 ## Deploying
 
-The site is a pile of static files plus `vercel.json`, so any static host
-works. Vercel is the easiest path:
-
-1. On vercel.com, **Import** `data-science-in-education/dsie-site`.
-2. Build command: `npm run build-data` (or leave blank if you commit the
-   `data/` files yourself).
-3. Output directory: `./` (project root).
-4. Add `NOTION_API_KEY` and `NOTION_EVENTS_DB_ID` as project env vars if
-   you want the build to fetch fresh Notion data.
-
-Vercel auto-deploys every push: `main` to your production domain, every
-branch to a preview URL.
-
-## Adding a talk
-
-1. In Notion, add a row to the Events database — see
-   [NOTION_SETUP.md](./NOTION_SETUP.md) for the schema.
-2. For past talks: tick `Published`, paste YouTube URL into
-   `YouTube URL`, write up the talk in the Notion page body.
-3. Run `npm run build-data` (or push and let Vercel run it). The talk
-   shows up on `/past.html` and gets its own page at
-   `/past-talk.html?id=<slug>` plus an OG image at
-   `/images/og/talk-<slug>.png`.
+The site is static files plus `vercel.json`, so any static host works. On
+Vercel it's imported with **no build command** (Framework Preset "Other",
+Output Directory = repo root) — Vercel just serves the files and auto-deploys
+every push: `main` to production, every branch to a preview URL.
 
 ## Customising
 
-- **Colours & typography**: `css/styles.css` — see the `:root` block at
-  the top for the palette.
-- **OG image style**: edit the SVG template in `scripts/og-image.js` and
-  re-run `npm run og`.
-- **Page copy**: each HTML file is hand-written, no templating engine.
-  Keep nav + footer changes in sync across all 5 pages.
+- **Colours & typography**: `css/styles.css` — see the `:root` block at the top.
+- **Page copy**: each HTML file is hand-written, no templating engine. Keep the
+  nav + footer in sync across all pages (they're duplicated intentionally — no
+  build step).
+- **OG image / data generation**: lives in `dsie-ops`, not here.
 
 ## License
 
