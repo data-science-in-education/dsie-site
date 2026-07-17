@@ -3,7 +3,7 @@
     {
       "id": "9fe1272d-9072-82c7-a044-8127475bd7e5",
       "slug": "can-robots-replace-teachers",
-      "title": "Inaugural meeting with a talk by Kavita Kapoor ”Can robots replace teachers?”",
+      "title": "Can robots replace teachers?",
       "speaker": "Kavita Kapoor",
       "speakerBio": "Kavita Kapoor is an award-winning technologist who collaborates with key decision-makers to create Technology for Good with a focus on child rights, volunteering and education. Her current portfolio covers, Founding Member and Strategy Director of the Federation of Humanitarian Technologists, Chief Learning Officer for the think tank Open UK, Trustee of South East River Trust, Founder of a grassroots LGBTQ+ sports club and mentor at the WISE Edinburgh Centre for Robotics.\n\nKavita trained as a coder and software architect for organisations as diverse as the BBC, Channel 4 Television and ICL Fujitsu and product manager with London 2012 Olympic and Paralympic Games. Going on to lead organisations globally she has held positions as CEO of What'sMySize, Regional Digital Operational Director working in Singapore and India and COO of the Micro:bit Educational Foundation.\n\nHer awards includes a BAFTA for Channel 4, Luvvies for London 2012 and MIT IIC for the BBC micro:bit.",
       "speakerPhotoUrl": "/images/speakers/kavita-kapoor.jpg",
@@ -13,8 +13,8 @@
       "month": "Sep",
       "year": "2021",
       "registrationUrl": "https://www.meetup.com/data-science-in-education/events/280769170/",
-      "youtubeUrl": "",
-      "youtubeId": "",
+      "youtubeUrl": "https://www.youtube.com/watch?v=57bQ2tQHgwk",
+      "youtubeId": "57bQ2tQHgwk",
       "meetupId": "280769170",
       "contentHtml": ""
     },
@@ -595,6 +595,6 @@
       "contentHtml": "<p>Kirk opened by motivating the need for AI tutor benchmarks. Despite caution from experts like the Brookings Institution, these tools are already being used at scale, with students turning to off-the-shelf models for instruction.</p>\n<p>He introduced the idea of benchmarks more generally, starting with ImageNet and MNIST, used for image classification and handwritten digit recognition. He then pointed to more language-oriented ones like SQuAD and MMLU, which are used to evaluate LLMs on answer extraction and multiple-choice questions.</p>\n<p>Kirk then presented two tutoring conversations and asked participants to rate them and explain their reasoning. The scores ranged widely — from 2/10 to 7/10 for the <em>same</em> conversation.</p>\n<p>Critiquing <a href=\"http://benchmarks.ai-for-education.org/\" target=\"_blank\" rel=\"noopener\">benchmarks.ai-for-education.org</a>, he walked through some of the benchmarks available. The visual maths benchmark, for example, measures how well models handle visual mathematical problems, such as counting the number of bricks missing from a wall. But Kirk argued that these don't get at the quality of instruction. Task-based benchmarks come closer: MathDial pairs expert teachers with LLM-simulated students, and MathTutorBench provides two tasks covering verifiable skills and open-ended tutoring moves.</p>\n<p>Kirk argued that existing benchmarks rest on three core assumptions which are not necessarily true:</p>\n<ol>\n<li>Content and pedagogical knowledge are good proxies for tutor quality.</li>\n<li>Tutoring quality is about increasing good behaviours and minimising bad ones — yet sometimes it is right to reveal an answer, for instance to a novice.</li>\n<li>Good tutoring can be reliably identified by expert educators.</li>\n</ol>\n<p>This last point sounds a bit controversial, but Kirk pointing both to the disagreement among us on this very call and to studies showing that observed student outcomes are not closely tied to these expert evaluations.</p>\n<p>He then offered a strawman for impact-oriented benchmarks, arguing that we are currently missing three things:</p>\n<ol>\n<li>Evaluations of when a tutoring response matters most.</li>\n<li>Evaluations of how students respond to an AI tutor.</li>\n<li>Evaluation of learning gains.</li>\n</ol>\n<p>He proposed implementing this in four steps:</p>\n<ol>\n<li>Identify effective vs ineffective sessions</li>\n<li>Estimate effectiveness turn-by-turn</li>\n<li>Locate the critical moments</li>\n<li>Evaluate tutor behaviour at those moments</li>\n</ol>\n<p>This then led to the following research challenges:</p>\n<ol>\n<li>Determining session-level effectiveness</li>\n<li>Models for predicting student outcomes from dialogue</li>\n<li>Simulations of plausible student responses</li>\n</ol>\n<p>There was a great question about evaluating this approach against human tutor transcripts. Kirk suggested that AI tutors may need different strategies altogether, since students interact with them differently than they do with human tutors.</p>\n<p>I don't think we've ever had so much engagement with a talk, a hot topic paired with a genuinely thoughtful analysis.</p>\n<p>If you're interested in this space, check out the National Tutoring Observatory's \"Trace the Ace\" competition: <a href=\"https://platform.k12-ai-infrastructure.org/competitions/3/tutoring-outcomes/\" target=\"_blank\" rel=\"noopener\">Competition – Trace the Ace</a>.</p>\n<br>\n<br>\n<br>"
     }
   ],
-  "lastUpdated": "2026-06-23T19:57:40.369Z",
+  "lastUpdated": "2026-07-17T12:43:55.627Z",
   "source": "notion"
 }
